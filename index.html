@@ -326,9 +326,9 @@
       </div>
     </nav>
     <div class="sidebar-footer">
-      <div class="user-avatar">JD</div>
+      <div class="user-avatar"></div>
       <div class="user-info">
-        <div class="user-name">John Doe</div>
+        <div class="user-name"></div>
         <div class="user-plan">Beta plan · 50MB used</div>
       </div>
     </div>
@@ -785,24 +785,11 @@ const DEVICE_ICONS = {
   other: `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>`
 };
 
-let devices = [
-  { id:1, name:'Samsung Galaxy S24', type:'phone', model:'Samsung Galaxy S24', imei:'352999009876543', date:'2024-01-15', warranty:'2026-01-15', notes:'Personal phone', status:'ok' },
-  { id:2, name:'MacBook Pro 14"', type:'laptop', model:'Apple MacBook Pro', imei:'C02ZB1TZMD6T', date:'2023-08-10', warranty:'2026-07-01', notes:'Work laptop', status:'warn' },
-  { id:3, name:'iPad Air 5', type:'tablet', model:'Apple iPad Air', imei:'DMPXF1ABCD12', date:'2022-11-20', warranty:'2026-11-20', notes:'Kids education', status:'ok' },
-  { id:4, name:'Apple Watch Series 9', type:'watch', model:'Apple Watch', imei:'GH7X92KLAB01', date:'2024-09-14', warranty:'2026-09-14', notes:'', status:'warn' },
-  { id:5, name:'Nokia 3310 (Work)', type:'phone', model:'Nokia 3310', imei:'490154203237518', date:'2023-03-10', warranty:'2025-03-10', notes:'Work phone', status:'stolen' },
-  { id:6, name:'Lenovo Tab P11', type:'tablet', model:'Lenovo Tab P11', imei:'862741051234567', date:'2024-05-01', warranty:'2026-05-01', notes:'', status:'ok' },
-  { id:7, name:'Samsung Galaxy Watch 4', type:'watch', model:'Samsung Galaxy Watch', imei:'353469112345678', date:'2023-12-25', warranty:'2025-12-25', notes:'Gift', status:'ok' }
-];
-let nextId = 8;
+let device = [];
+let nextId = 1;
 
 const typeColors = { phone:'dt-phone', laptop:'dt-laptop', tablet:'dt-tablet', watch:'dt-watch', other:'dt-other' };
 const warrantyData = [
-  { name:'Samsung Galaxy S24', type:'phone', expiry:'Jan 15, 2027', pct:78, cls:'wb-ok', pill:'pill-ok', label:'Active' },
-  { name:'MacBook Pro 14"', type:'laptop', expiry:'Jul 1, 2026', pct:12, cls:'wb-warn', pill:'pill-warn', label:'23 days' },
-  { name:'iPad Air 5', type:'tablet', expiry:'Nov 20, 2026', pct:55, cls:'wb-ok', pill:'pill-ok', label:'Active' },
-  { name:'Apple Watch Series 9', type:'watch', expiry:'Sep 14, 2026', pct:30, cls:'wb-warn', pill:'pill-warn', label:'98 days' },
-  { name:'Nokia 3310', type:'phone', expiry:'Mar 10, 2026', pct:4, cls:'wb-exp', pill:'pill-exp', label:'Expired' },
 ];
 
 function deviceThumb(type) {
@@ -963,5 +950,10 @@ function showToast(msg) {
 renderDashDevices();
 renderWarrantyList('dash-warranty-list');
 </script>
+
+<footer style="text-align:center; padding:16px; font-size:13px; color:#888; border-top:1px solid #2a2a2a; margin-top:20px;">
+  OmniBackup · Built by Tebogo Letsoalo · © 2026
+</footer>
+
 </body>
 </html>
