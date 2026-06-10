@@ -6,6 +6,13 @@
   <title>OmniBackup — Device Management Platform</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1D9E75">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="OmniBackup">
+  <link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
 
@@ -433,5 +440,12 @@
 <div class="toast" id="toast"></div>
 
 <script type="module" src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/omnibackup-v1/sw.js');
+    });
+  }
+</script>
 </body>
 </html>
