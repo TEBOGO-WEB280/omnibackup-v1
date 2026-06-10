@@ -1,9 +1,31 @@
 /* =========================================
-   OmniBackup — App Logic
+   OmniBackup — App Logic with Firebase
    app.js
    ========================================= */
 
-/* --- Device Icon SVGs --- */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+/* --- Firebase Config --- */
+const firebaseConfig = {
+  apiKey: "AIzaSyDGahjnB38YFp-uNrwt58g3Lx1hg1ioYYE",
+  authDomain: "omnibackup-ec978.firebaseapp.com",
+  projectId: "omnibackup-ec978",
+  storageBucket: "omnibackup-ec978.firebasestorage.app",
+  messagingSenderId: "992809410913",
+  appId: "1:992809410913:web:bea489eddba070026ee520"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* --- State --- */
+let devices = [];
+let currentUser = null;
+
+/* --- Device Icons --- */
 const DEVICE_ICONS = {
   phone:  `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
   laptop: `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg>`,
@@ -11,109 +33,113 @@ const DEVICE_ICONS = {
   watch:  `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round"><rect x="5" y="2" width="14" height="20" rx="7"/><circle cx="12" cy="12" r="3"/></svg>`,
   other:  `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>`
 };
-
-/* --- Load data from localStorage (empty on first launch) --- */
-let devices      = JSON.parse(localStorage.getItem('omnibackup_devices') || '[]');
-let stolenReports= JSON.parse(localStorage.getItem('omnibackup_stolen')  || '[]');
-let nextId       = parseInt(localStorage.getItem('omnibackup_nextid')    || '1', 10);
-let nextReportId = parseInt(localStorage.getItem('omnibackup_reportid')  || '1', 10);
-let profile      = JSON.parse(localStorage.getItem('omnibackup_profile') || '{"name":"","email":""}');
-
 const typeColors = { phone:'dt-phone', laptop:'dt-laptop', tablet:'dt-tablet', watch:'dt-watch', other:'dt-other' };
 
-/* --- Save everything to localStorage --- */
-function saveData() {
-  localStorage.setItem('omnibackup_devices',  JSON.stringify(devices));
-  localStorage.setItem('omnibackup_stolen',   JSON.stringify(stolenReports));
-  localStorage.setItem('omnibackup_nextid',   String(nextId));
-  localStorage.setItem('omnibackup_reportid', String(nextReportId));
-  localStorage.setItem('omnibackup_profile',  JSON.stringify(profile));
-}
+/* =========================================
+   AUTH
+   ========================================= */
 
-/* --- Compute warranty info for a device --- */
-function warrantyInfo(d) {
-  if (!d.warranty) return null;
-  const today    = new Date();
-  const expDate  = new Date(d.warranty);
-  const daysLeft = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
-  const pct      = Math.max(0, Math.min(100, Math.round((daysLeft / 365) * 100)));
-  let cls, pill, label;
-  if (daysLeft < 0)        { cls = 'wb-exp';  pill = 'pill-exp';  label = 'Expired'; }
-  else if (daysLeft <= 90) { cls = 'wb-warn'; pill = 'pill-warn'; label = daysLeft + ' days'; }
-  else                     { cls = 'wb-ok';   pill = 'pill-ok';   label = 'Active'; }
-  return {
-    name:   d.name,
-    type:   d.type,
-    expiry: expDate.toLocaleDateString('en-ZA', { day:'numeric', month:'short', year:'numeric' }),
-    daysLeft, pct, cls, pill, label
-  };
-}
+window.showRegister = () => {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('register-form').style.display = 'block';
+};
+window.showLogin = () => {
+  document.getElementById('register-form').style.display = 'none';
+  document.getElementById('login-form').style.display = 'block';
+};
 
-/* --- Compute dashboard metrics from real data --- */
-function getMetrics() {
-  const today        = new Date();
-  const total        = devices.length;
-  const stolen       = devices.filter(d => d.status === 'stolen').length;
-  const withWarranty = devices.filter(d => d.warranty);
-  const active       = withWarranty.filter(d => new Date(d.warranty) >= today).length;
-  const expiringSoon = withWarranty.filter(d => {
-    const days = Math.ceil((new Date(d.warranty) - today) / (1000 * 60 * 60 * 24));
-    return days >= 0 && days <= 90;
-  }).length;
-  return { total, stolen, active, expiringSoon };
-}
-
-/* --- Update metric counters and expiry banner --- */
-function updateMetrics() {
-  const m   = getMetrics();
-  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  set('m-total',    m.total);
-  set('m-active',   m.active);
-  set('m-expiring', m.expiringSoon);
-  set('m-stolen',   m.stolen);
-  set('nav-count',  m.total);
-
-  // Show or hide expiry warning banner
-  const banner     = document.getElementById('expiry-banner');
-  const bannerText = document.getElementById('expiry-banner-text');
-  if (banner && bannerText) {
-    if (m.expiringSoon > 0) {
-      const soon = devices
-        .filter(d => d.warranty)
-        .filter(d => { const days = Math.ceil((new Date(d.warranty) - new Date()) / 86400000); return days >= 0 && days <= 90; });
-      const first = soon[0];
-      const days  = Math.ceil((new Date(first.warranty) - new Date()) / 86400000);
-      bannerText.innerHTML = `<strong>${m.expiringSoon} warranty${m.expiringSoon > 1 ? 'ies' : ''} expiring soon</strong> — ${first.name} expires in ${days} days. <a onclick="goTo('warranties', null)">View warranty tracker →</a>`;
-      banner.style.display = 'flex';
-    } else {
-      banner.style.display = 'none';
-    }
+window.registerUser = async () => {
+  const name     = document.getElementById('reg-name').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const errEl    = document.getElementById('reg-error');
+  errEl.textContent = '';
+  if (!name || !email || !password) { errEl.textContent = 'Please fill in all fields.'; return; }
+  if (password.length < 6)          { errEl.textContent = 'Password must be at least 6 characters.'; return; }
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(cred.user, { displayName: name });
+    showToast('Account created! Welcome to OmniBackup 🎉');
+  } catch (e) {
+    errEl.textContent = friendlyError(e.code);
   }
+};
+
+window.loginUser = async () => {
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl    = document.getElementById('login-error');
+  errEl.textContent = '';
+  if (!email || !password) { errEl.textContent = 'Please enter your email and password.'; return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (e) {
+    errEl.textContent = friendlyError(e.code);
+  }
+};
+
+window.logoutUser = async () => {
+  await signOut(auth);
+};
+
+function friendlyError(code) {
+  if (code === 'auth/email-already-in-use') return 'That email is already registered. Try signing in.';
+  if (code === 'auth/invalid-email')        return 'Please enter a valid email address.';
+  if (code === 'auth/invalid-credential')   return 'Incorrect email or password.';
+  if (code === 'auth/weak-password')        return 'Password must be at least 6 characters.';
+  return 'Something went wrong. Please try again.';
 }
 
-/* --- Update profile display in sidebar and settings --- */
-function updateProfileDisplay() {
-  const name    = profile.name  || 'Your Name';
-  const email   = profile.email || 'Not set';
-  const initials= profile.name ? profile.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?';
+/* --- Auth state listener --- */
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display  = 'block';
+    updateProfileDisplay();
+    await loadDevices();
+    renderDashDevices();
+    renderWarrantyList('dash-warranty-list');
+    updateMetrics();
+  } else {
+    currentUser = null;
+    devices     = [];
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app-screen').style.display  = 'none';
+  }
+});
 
-  const avatar = document.getElementById('user-avatar');
-  const dispName = document.getElementById('user-display-name');
-  const sName  = document.getElementById('s-name-display');
-  const sEmail = document.getElementById('s-email-display');
+/* =========================================
+   FIRESTORE — Load & Save
+   ========================================= */
 
-  if (avatar)   avatar.textContent   = initials;
-  if (dispName) dispName.textContent = name;
-  if (sName)    sName.textContent    = profile.name  || 'Not set';
-  if (sEmail)   sEmail.textContent   = profile.email || 'Not set';
+async function loadDevices() {
+  if (!currentUser) return;
+  devices = [];
+  const q    = query(collection(db, 'devices'), where('uid', '==', currentUser.uid));
+  const snap = await getDocs(q);
+  snap.forEach(d => devices.push({ id: d.id, ...d.data() }));
+  // Sort newest first
+  devices.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 }
 
-/* --- Helper: Device Thumbnail HTML --- */
+async function saveDevice(d) {
+  const ref = await addDoc(collection(db, 'devices'), { ...d, uid: currentUser.uid, createdAt: Date.now() });
+  return ref.id;
+}
+
+async function removeDevice(id) {
+  await deleteDoc(doc(db, 'devices', id));
+}
+
+/* =========================================
+   HELPERS
+   ========================================= */
+
 function deviceThumb(type) {
   return `<div class="device-thumb ${typeColors[type] || 'dt-other'}">${DEVICE_ICONS[type] || DEVICE_ICONS.other}</div>`;
 }
 
-/* --- Helper: Status Pill HTML --- */
 function statusPill(s) {
   if (s === 'ok')     return `<span class="pill pill-ok">Active</span>`;
   if (s === 'warn')   return `<span class="pill pill-warn">Exp. soon</span>`;
@@ -121,7 +147,63 @@ function statusPill(s) {
   return `<span class="pill">—</span>`;
 }
 
-/* --- Render: Dashboard Device List --- */
+function warrantyInfo(d) {
+  if (!d.warranty) return null;
+  const today    = new Date();
+  const expDate  = new Date(d.warranty);
+  const daysLeft = Math.ceil((expDate - today) / 86400000);
+  const pct      = Math.max(0, Math.min(100, Math.round((daysLeft / 365) * 100)));
+  let cls, pill, label;
+  if (daysLeft < 0)        { cls = 'wb-exp';  pill = 'pill-exp';  label = 'Expired'; }
+  else if (daysLeft <= 90) { cls = 'wb-warn'; pill = 'pill-warn'; label = daysLeft + ' days'; }
+  else                     { cls = 'wb-ok';   pill = 'pill-ok';   label = 'Active'; }
+  return { name: d.name, type: d.type, expiry: expDate.toLocaleDateString('en-ZA', { day:'numeric', month:'short', year:'numeric' }), daysLeft, pct, cls, pill, label };
+}
+
+function getMetrics() {
+  const today   = new Date();
+  const total   = devices.length;
+  const stolen  = devices.filter(d => d.status === 'stolen').length;
+  const active  = devices.filter(d => d.warranty && new Date(d.warranty) >= today).length;
+  const expiring= devices.filter(d => { if (!d.warranty) return false; const days = Math.ceil((new Date(d.warranty) - today) / 86400000); return days >= 0 && days <= 90; }).length;
+  return { total, stolen, active, expiringSoon: expiring };
+}
+
+/* =========================================
+   RENDER FUNCTIONS
+   ========================================= */
+
+function updateMetrics() {
+  const m = getMetrics();
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('m-total', m.total); set('m-active', m.active);
+  set('m-expiring', m.expiringSoon); set('m-stolen', m.stolen); set('nav-count', m.total);
+  const banner = document.getElementById('expiry-banner');
+  const bannerText = document.getElementById('expiry-banner-text');
+  if (banner && bannerText) {
+    if (m.expiringSoon > 0) {
+      const soon  = devices.filter(d => { if (!d.warranty) return false; const days = Math.ceil((new Date(d.warranty) - new Date()) / 86400000); return days >= 0 && days <= 90; });
+      const first = soon[0];
+      const days  = Math.ceil((new Date(first.warranty) - new Date()) / 86400000);
+      bannerText.innerHTML = `<strong>${m.expiringSoon} warranty${m.expiringSoon > 1 ? 'ies' : ''} expiring soon</strong> — ${first.name} expires in ${days} days. <a onclick="goTo('warranties', null)">View warranty tracker →</a>`;
+      banner.style.display = 'flex';
+    } else { banner.style.display = 'none'; }
+  }
+}
+
+function updateProfileDisplay() {
+  if (!currentUser) return;
+  const name     = currentUser.displayName || 'User';
+  const email    = currentUser.email       || '';
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('user-avatar', initials);
+  set('user-display-name', name);
+  set('user-email-display', email);
+  set('s-name-display', name);
+  set('s-email-display', email);
+}
+
 function renderDashDevices() {
   const el = document.getElementById('dash-device-list');
   if (!el) return;
@@ -140,14 +222,9 @@ function renderDashDevices() {
     </div>`).join('');
 }
 
-/* --- Render: Devices Table --- */
 function renderDeviceTable() {
   const q        = (document.getElementById('device-search') || { value: '' }).value.toLowerCase();
-  const filtered = devices.filter(d =>
-    d.name.toLowerCase().includes(q) ||
-    (d.imei  || '').toLowerCase().includes(q) ||
-    (d.model || '').toLowerCase().includes(q)
-  );
+  const filtered = devices.filter(d => d.name.toLowerCase().includes(q) || (d.imei||'').toLowerCase().includes(q) || (d.model||'').toLowerCase().includes(q));
   const el = document.getElementById('device-table-body');
   if (!el) return;
   if (!filtered.length) {
@@ -156,134 +233,75 @@ function renderDeviceTable() {
   }
   el.innerHTML = filtered.map(d => `
     <div class="dt-row">
-      <div class="dt-row-name">
-        ${deviceThumb(d.type)}
-        <div>
-          <div class="device-name">${d.name}</div>
-          <div class="device-meta" style="font-size:11px;color:var(--text-3)">${d.model || ''}</div>
-        </div>
-      </div>
-      <div class="dt-mono col-hide">${d.imei || '—'}</div>
-      <div class="col-hide" style="font-size:13px;color:var(--text-2)">${d.date || '—'}</div>
-      <div style="font-size:12px;color:var(--text-2)">${d.warranty || '—'}</div>
+      <div class="dt-row-name">${deviceThumb(d.type)}<div><div class="device-name">${d.name}</div><div class="device-meta" style="font-size:11px;color:var(--text-3)">${d.model||''}</div></div></div>
+      <div class="dt-mono col-hide">${d.imei||'—'}</div>
+      <div class="col-hide" style="font-size:13px;color:var(--text-2)">${d.date||'—'}</div>
+      <div style="font-size:12px;color:var(--text-2)">${d.warranty||'—'}</div>
       <div>${statusPill(d.status)}</div>
       <div class="dt-actions">
-        <div class="action-icon" onclick="editDevice(${d.id})" title="Edit">
-          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg>
-        </div>
-        <div class="action-icon" onclick="deleteDevice(${d.id})" title="Delete" style="color:var(--red)">
+        <div class="action-icon" onclick="deleteDevice('${d.id}')" title="Delete" style="color:var(--red)">
           <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
         </div>
       </div>
     </div>`).join('');
 }
 
-/* --- Render: Warranty List --- */
 function renderWarrantyList(targetId) {
   const el   = document.getElementById(targetId);
   if (!el) return;
   const data = devices.filter(d => d.warranty).map(warrantyInfo).filter(Boolean);
-  if (!data.length) {
-    el.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><p>No warranty data yet — add devices with a warranty expiry date.</p></div>';
-    return;
-  }
+  if (!data.length) { el.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><p>No warranty data yet.</p></div>'; return; }
   el.innerHTML = data.map(w => `
     <div class="warranty-row">
-      <div class="w-icon ${typeColors[w.type] || 'dt-other'}">${DEVICE_ICONS[w.type] || DEVICE_ICONS.other}</div>
-      <div style="flex:1;min-width:0">
-        <div class="w-name">${w.name}</div>
-        <div class="w-date">Expires ${w.expiry}</div>
-      </div>
-      <div class="w-bar-track" style="flex:1;max-width:100px">
-        <div class="w-bar-fill ${w.cls}" style="width:${w.pct}%"></div>
-      </div>
+      <div class="w-icon ${typeColors[w.type]||'dt-other'}">${DEVICE_ICONS[w.type]||DEVICE_ICONS.other}</div>
+      <div style="flex:1;min-width:0"><div class="w-name">${w.name}</div><div class="w-date">Expires ${w.expiry}</div></div>
+      <div class="w-bar-track" style="flex:1;max-width:100px"><div class="w-bar-fill ${w.cls}" style="width:${w.pct}%"></div></div>
       <span class="pill ${w.pill}">${w.label}</span>
     </div>`).join('');
 }
 
-/* --- Render: Stolen Reports Page --- */
 function renderStolenList() {
-  const el = document.getElementById('stolen-list');
+  const el     = document.getElementById('stolen-list');
   if (!el) return;
   const stolen = devices.filter(d => d.status === 'stolen');
-  if (!stolen.length) {
-    el.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><p>No stolen device reports. Stay safe!</p></div>';
-    return;
-  }
-  el.innerHTML = stolen.map(d => {
-    const report = stolenReports.find(r => r.deviceId === d.id) || {};
-    return `
+  if (!stolen.length) { el.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><p>No stolen device reports. Stay safe!</p></div>'; return; }
+  el.innerHTML = stolen.map(d => `
     <div class="report-card">
-      <div class="report-status">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Report active — Case #OB-${String(report.id || '???').padStart(4,'0')}
-      </div>
+      <div class="report-status"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Stolen report active</div>
       <div class="report-field"><div class="rf-label">Device</div><div class="rf-val">${d.name}</div></div>
-      <div class="report-field"><div class="rf-label">IMEI</div><div class="rf-val rf-mono">${d.imei || '—'}</div></div>
-      <div class="report-field"><div class="rf-label">Date reported</div><div class="rf-val">${report.date || '—'}</div></div>
-      <div class="report-field"><div class="rf-label">Last known location</div><div class="rf-val">${report.location || '—'}</div></div>
-      <div class="report-field"><div class="rf-label">Police reference</div><div class="rf-val">${report.police || '—'}</div></div>
-      <div style="margin-top:16px;display:flex;gap:10px">
-        <button class="btn btn-ghost" onclick="showToast('Download feature coming soon!')">
-          <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download report
-        </button>
-        <button class="btn btn-ghost" onclick="copyToClipboard('OB-${String(report.id || '').padStart(4,'0')}')">
-          <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          Copy case number
-        </button>
-      </div>
-    </div>`;
-  }).join('');
+      <div class="report-field"><div class="rf-label">IMEI</div><div class="rf-val rf-mono">${d.imei||'—'}</div></div>
+      <div class="report-field"><div class="rf-label">Location</div><div class="rf-val">${d.stolenLocation||'—'}</div></div>
+      <div class="report-field"><div class="rf-label">Police ref</div><div class="rf-val">${d.stolenPolice||'—'}</div></div>
+    </div>`).join('');
 }
 
-/* --- Render: Security Page --- */
 function renderSecurity() {
   const el = document.getElementById('security-content');
   if (!el) return;
-  if (!devices.length) {
-    el.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><p>Add devices to see your security score.</p></div>';
-    return;
-  }
-  const total        = devices.length;
-  const withImei     = devices.filter(d => d.imei).length;
+  if (!devices.length) { el.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><p>Add devices to see your security score.</p></div>'; return; }
+  const total = devices.length;
+  const withImei = devices.filter(d => d.imei).length;
   const withWarranty = devices.filter(d => d.warranty).length;
-  const withDate     = devices.filter(d => d.date).length;
-  const score        = Math.round(((withImei + withWarranty + withDate) / (total * 3)) * 100);
-  const scoreColor   = score >= 70 ? 'var(--green)' : score >= 40 ? 'var(--amber)' : 'var(--red)';
-  const scoreLabel   = score >= 70 ? 'Good' : score >= 40 ? 'Fair — a few improvements available' : 'Needs attention';
-
+  const withDate = devices.filter(d => d.date).length;
+  const score = Math.round(((withImei + withWarranty + withDate) / (total * 3)) * 100);
+  const scoreColor = score >= 70 ? 'var(--green)' : score >= 40 ? 'var(--amber)' : 'var(--red)';
+  const scoreLabel = score >= 70 ? 'Good' : score >= 40 ? 'Fair — a few improvements available' : 'Needs attention';
   el.innerHTML = `
     <div style="display:flex;align-items:center;gap:24px;margin-bottom:16px">
-      <div style="text-align:center">
-        <div style="font-size:48px;font-weight:300;color:${scoreColor};line-height:1">${score}</div>
-        <div style="font-size:12px;color:var(--text-3)">out of 100</div>
-      </div>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px">${scoreLabel}</div>
-        <div style="background:var(--bg);height:8px;border-radius:4px;overflow:hidden">
-          <div style="background:${scoreColor};height:8px;border-radius:4px;width:${score}%;transition:.4s"></div>
-        </div>
-      </div>
+      <div style="text-align:center"><div style="font-size:48px;font-weight:300;color:${scoreColor};line-height:1">${score}</div><div style="font-size:12px;color:var(--text-3)">out of 100</div></div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px">${scoreLabel}</div><div style="background:var(--bg);height:8px;border-radius:4px;overflow:hidden"><div style="background:${scoreColor};height:8px;border-radius:4px;width:${score}%;transition:.4s"></div></div></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      ${checkItem(withImei === total, 'IMEI recorded', withImei + ' of ' + total + ' devices')}
-      ${checkItem(withWarranty === total, 'Warranty dates set', withWarranty + ' of ' + total + ' devices')}
-      ${checkItem(withDate === total, 'Purchase dates set', withDate + ' of ' + total + ' devices')}
+      ${checkItem(withImei===total,'IMEI recorded',withImei+' of '+total+' devices')}
+      ${checkItem(withWarranty===total,'Warranty dates set',withWarranty+' of '+total+' devices')}
+      ${checkItem(withDate===total,'Purchase dates set',withDate+' of '+total+' devices')}
     </div>`;
 }
 
 function checkItem(ok, label, sub) {
-  return `<div style="padding:12px;background:var(--bg);border-radius:var(--radius);display:flex;align-items:center;gap:10px">
-    <span style="color:${ok ? 'var(--green)' : 'var(--amber)'};font-size:18px">${ok ? '✓' : '!'}</span>
-    <div>
-      <div style="font-size:12px;font-weight:500;color:var(--text)">${label}</div>
-      <div style="font-size:11px;color:var(--text-3)">${sub}</div>
-    </div>
-  </div>`;
+  return `<div style="padding:12px;background:var(--bg);border-radius:var(--radius);display:flex;align-items:center;gap:10px"><span style="color:${ok?'var(--green)':'var(--amber)'};font-size:18px">${ok?'✓':'!'}</span><div><div style="font-size:12px;font-weight:500;color:var(--text)">${label}</div><div style="font-size:11px;color:var(--text-3)">${sub}</div></div></div>`;
 }
 
-/* --- Render: About Page stats --- */
 function renderAbout() {
   const withWarranty = devices.filter(d => d.warranty).length;
   const ad = document.getElementById('about-devices');
@@ -292,218 +310,96 @@ function renderAbout() {
   if (aw) aw.textContent = withWarranty;
 }
 
-/* --- Navigation --- */
-function goTo(page, el) {
+/* =========================================
+   NAVIGATION
+   ========================================= */
+
+window.goTo = (page, el) => {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
-
-  if (el) {
-    el.classList.add('active');
-  } else {
-    document.querySelectorAll('.nav-item').forEach(i => {
-      if (i.getAttribute('onclick') && i.getAttribute('onclick').includes("'" + page + "'"))
-        i.classList.add('active');
-    });
-  }
-
-  const titles = {
-    dashboard: 'Dashboard', devices: 'My devices',
-    stolen: 'Stolen reports', security: 'Security',
-    documents: 'Documents', warranties: 'Warranties',
-    settings: 'Settings', about: 'About'
-  };
+  if (el) { el.classList.add('active'); }
+  else { document.querySelectorAll('.nav-item').forEach(i => { if (i.getAttribute('onclick') && i.getAttribute('onclick').includes("'"+page+"'")) i.classList.add('active'); }); }
+  const titles = { dashboard:'Dashboard', devices:'My devices', stolen:'Stolen reports', security:'Security', documents:'Documents', warranties:'Warranties', settings:'Settings', about:'About' };
   document.getElementById('page-title').textContent = titles[page] || page;
-
   if (page === 'devices')    renderDeviceTable();
   if (page === 'warranties') renderWarrantyList('warranty-full-list');
   if (page === 'stolen')     renderStolenList();
   if (page === 'security')   renderSecurity();
   if (page === 'about')      renderAbout();
-}
+};
 
-/* --- Modal Helpers --- */
-function openModal(id)  {
-  if (id === 'stolenModal') populateStolenDropdown();
-  document.getElementById(id).classList.add('open');
-}
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+/* =========================================
+   DEVICE ACTIONS
+   ========================================= */
 
-/* --- Add / Save Device --- */
-function addDevice() {
+window.openModal  = (id) => { if (id === 'stolenModal') populateStolenDropdown(); document.getElementById(id).classList.add('open'); };
+window.closeModal = (id) => document.getElementById(id).classList.remove('open');
+
+window.addDevice = async () => {
   const name = document.getElementById('f-name').value.trim();
   if (!name) { showToast('Please enter a device name'); return; }
-
   const warrantyDate = document.getElementById('f-warranty').value;
   let status = 'ok';
-  if (warrantyDate) {
-    const days = Math.ceil((new Date(warrantyDate) - new Date()) / 86400000);
-    if (days >= 0 && days <= 90) status = 'warn';
-  }
-
-  const d = {
-    id:       nextId++,
-    name,
-    type:     document.getElementById('f-type').value,
-    model:    document.getElementById('f-model').value || name,
-    imei:     document.getElementById('f-imei').value,
-    date:     document.getElementById('f-date').value,
-    warranty: warrantyDate,
-    notes:    document.getElementById('f-notes').value,
-    status
-  };
-
-  devices.unshift(d);
-  saveData();
-
-  ['f-name', 'f-model', 'f-imei', 'f-date', 'f-warranty', 'f-notes'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-
+  if (warrantyDate) { const days = Math.ceil((new Date(warrantyDate) - new Date()) / 86400000); if (days >= 0 && days <= 90) status = 'warn'; }
+  const d = { name, type: document.getElementById('f-type').value, model: document.getElementById('f-model').value || name, imei: document.getElementById('f-imei').value, date: document.getElementById('f-date').value, warranty: warrantyDate, notes: document.getElementById('f-notes').value, status };
+  const id = await saveDevice(d);
+  devices.unshift({ id, ...d });
+  ['f-name','f-model','f-imei','f-date','f-warranty','f-notes'].forEach(i => { document.getElementById(i).value = ''; });
   closeModal('addDeviceModal');
-  updateMetrics();
-  renderDashDevices();
-  renderWarrantyList('dash-warranty-list');
-  showToast('Device "' + d.name + '" added successfully');
-}
+  updateMetrics(); renderDashDevices(); renderWarrantyList('dash-warranty-list');
+  showToast('Device "' + name + '" added successfully');
+};
 
-/* --- Delete Device --- */
-function deleteDevice(id) {
+window.deleteDevice = async (id) => {
   if (!confirm('Remove this device from OmniBackup?')) return;
+  await removeDevice(id);
   devices = devices.filter(d => d.id !== id);
-  saveData();
-  updateMetrics();
-  renderDashDevices();
-  renderDeviceTable();
-  renderWarrantyList('dash-warranty-list');
+  updateMetrics(); renderDashDevices(); renderDeviceTable(); renderWarrantyList('dash-warranty-list');
   showToast('Device removed');
-}
+};
 
-/* --- Edit Device (prefill modal) --- */
-function editDevice(id) {
-  const d = devices.find(x => x.id === id);
-  if (!d) return;
-  document.getElementById('f-name').value     = d.name;
-  document.getElementById('f-type').value     = d.type;
-  document.getElementById('f-model').value    = d.model;
-  document.getElementById('f-imei').value     = d.imei     || '';
-  document.getElementById('f-date').value     = d.date     || '';
-  document.getElementById('f-warranty').value = d.warranty || '';
-  document.getElementById('f-notes').value    = d.notes    || '';
-  openModal('addDeviceModal');
-}
-
-/* --- File Stolen Report --- */
-function fileReport() {
+window.fileReport = async () => {
   const deviceName = document.getElementById('sr-device').value;
   if (!deviceName) { showToast('Please select a device'); return; }
-
   const d = devices.find(x => x.name === deviceName);
-  if (d) { d.status = 'stolen'; }
-
-  const report = {
-    id:       nextReportId++,
-    deviceId: d ? d.id : null,
-    device:   deviceName,
-    date:     document.getElementById('sr-date').value || new Date().toLocaleDateString('en-ZA'),
-    location: document.getElementById('sr-location').value,
-    police:   document.getElementById('sr-police').value,
-    desc:     document.getElementById('sr-desc').value
-  };
-  stolenReports.push(report);
-  saveData();
-
-  ['sr-date', 'sr-location', 'sr-police', 'sr-desc'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-
+  if (d) {
+    d.status = 'stolen';
+    d.stolenLocation = document.getElementById('sr-location').value;
+    d.stolenPolice   = document.getElementById('sr-police').value;
+    await updateDoc(doc(db, 'devices', d.id), { status: 'stolen', stolenLocation: d.stolenLocation, stolenPolice: d.stolenPolice });
+  }
+  ['sr-date','sr-location','sr-police','sr-desc'].forEach(id => { document.getElementById(id).value = ''; });
   closeModal('stolenModal');
-  updateMetrics();
-  renderDashDevices();
+  updateMetrics(); renderDashDevices();
   showToast('Stolen report filed for ' + deviceName);
-}
+};
 
-/* --- Populate stolen report dropdown from real devices --- */
 function populateStolenDropdown() {
   const sel = document.getElementById('sr-device');
   if (!sel) return;
   const active = devices.filter(d => d.status !== 'stolen');
-  if (!active.length) {
-    sel.innerHTML = '<option value="">No devices registered yet</option>';
-    return;
-  }
-  sel.innerHTML = active.map(d => `<option value="${d.name}">${d.name}</option>`).join('');
+  sel.innerHTML = active.length ? active.map(d => `<option value="${d.name}">${d.name}</option>`).join('') : '<option value="">No devices registered yet</option>';
 }
 
-/* --- Profile: Save Name --- */
-function saveName() {
-  const val = document.getElementById('edit-name').value.trim();
-  if (!val) { showToast('Please enter a name'); return; }
-  profile.name = val;
-  saveData();
-  updateProfileDisplay();
-  closeModal('editNameModal');
-  document.getElementById('edit-name').value = '';
-  showToast('Name updated');
-}
-
-/* --- Profile: Save Email --- */
-function saveEmail() {
-  const val = document.getElementById('edit-email').value.trim();
-  if (!val) { showToast('Please enter an email'); return; }
-  profile.email = val;
-  saveData();
-  updateProfileDisplay();
-  closeModal('editEmailModal');
-  document.getElementById('edit-email').value = '';
-  showToast('Email updated');
-}
-
-/* --- Export Records --- */
-function exportRecords() {
+window.exportRecords = () => {
   if (!devices.length) { showToast('No devices to export yet'); return; }
-  const data = JSON.stringify({ exported: new Date().toISOString(), profile, devices, stolenReports }, null, 2);
+  const data = JSON.stringify({ exported: new Date().toISOString(), user: currentUser?.email, devices }, null, 2);
   const blob = new Blob([data], { type: 'application/json' });
   const a    = document.createElement('a');
   a.href     = URL.createObjectURL(blob);
   a.download = 'omnibackup-records.json';
   a.click();
-  showToast('Records exported as JSON');
-}
+  showToast('Records exported');
+};
 
-/* --- Clear All Data --- */
-function clearAllData() {
-  if (!confirm('This will delete ALL your devices and data. Are you sure?')) return;
-  devices       = [];
-  stolenReports = [];
-  nextId        = 1;
-  nextReportId  = 1;
-  profile       = { name: '', email: '' };
-  saveData();
-  updateMetrics();
-  updateProfileDisplay();
-  renderDashDevices();
-  renderWarrantyList('dash-warranty-list');
-  showToast('All data cleared');
-}
-
-/* --- Copy to clipboard --- */
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => showToast('Copied: ' + text));
-}
-
-/* --- Toast Notification --- */
+/* =========================================
+   TOAST
+   ========================================= */
 let toastTimer;
-function showToast(msg) {
+window.showToast = (msg) => {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-/* --- Init on page load --- */
-updateMetrics();
-updateProfileDisplay();
-renderDashDevices();
-renderWarrantyList('dash-warranty-list');
+};
