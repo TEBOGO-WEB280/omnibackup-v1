@@ -327,6 +327,8 @@ window.goTo = (page, el) => {
   if (page === 'stolen')     renderStolenList();
   if (page === 'security')   renderSecurity();
   if (page === 'about')      renderAbout();
+  // Close sidebar on mobile after navigation
+  closeSidebar();
 };
 
 /* =========================================
@@ -394,8 +396,20 @@ window.exportRecords = () => {
 };
 
 /* =========================================
-   TOAST
+   MOBILE SIDEBAR TOGGLE
    ========================================= */
+
+window.toggleSidebar = () => {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+};
+
+window.closeSidebar = () => {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+};
+
+
 let toastTimer;
 window.showToast = (msg) => {
   const t = document.getElementById('toast');
