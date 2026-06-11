@@ -18,45 +18,25 @@
       </div>
       <div class="logo-name">Omni<span>Backup</span></div>
     </div>
-
-    <!-- Login Form -->
     <div class="auth-card" id="login-form">
       <div class="auth-title">Welcome back</div>
       <div class="auth-sub">Sign in to your OmniBackup account</div>
-      <div class="form-group">
-        <label class="form-label">Email address</label>
-        <input class="form-input" id="login-email" type="email" placeholder="you@example.com">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input class="form-input" id="login-password" type="password" placeholder="••••••••">
-      </div>
+      <div class="form-group"><label class="form-label">Email address</label><input class="form-input" id="login-email" type="email" placeholder="you@example.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="login-password" type="password" placeholder="••••••••"></div>
       <div class="auth-error" id="login-error"></div>
       <button class="btn btn-primary auth-btn" onclick="loginUser()">Sign in</button>
       <div class="auth-switch">Don't have an account? <a onclick="showRegister()">Create one →</a></div>
     </div>
-
-    <!-- Register Form -->
     <div class="auth-card" id="register-form" style="display:none">
       <div class="auth-title">Create account</div>
-      <div class="auth-sub">Start tracking your devices for free</div>
-      <div class="form-group">
-        <label class="form-label">Full name</label>
-        <input class="form-input" id="reg-name" type="text" placeholder="e.g. John Doe">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Email address</label>
-        <input class="form-input" id="reg-email" type="email" placeholder="you@example.com">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input class="form-input" id="reg-password" type="password" placeholder="Min. 6 characters">
-      </div>
+      <div class="auth-sub">Start with a free 7-day trial — no card needed</div>
+      <div class="form-group"><label class="form-label">Full name</label><input class="form-input" id="reg-name" type="text" placeholder="e.g. John Doe"></div>
+      <div class="form-group"><label class="form-label">Email address</label><input class="form-input" id="reg-email" type="email" placeholder="you@example.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="reg-password" type="password" placeholder="Min. 6 characters"></div>
       <div class="auth-error" id="reg-error"></div>
-      <button class="btn btn-primary auth-btn" onclick="registerUser()">Create account</button>
+      <button class="btn btn-primary auth-btn" onclick="registerUser()">Start free trial</button>
       <div class="auth-switch">Already have an account? <a onclick="showLogin()">Sign in →</a></div>
     </div>
-
     <div class="auth-footer">Built by <strong>Letsoalo Tebogo</strong> · © 2026 OmniBackup. All rights reserved.</div>
   </div>
 </div>
@@ -70,7 +50,7 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
-    <button class="sidebar-close" id="sidebar-close" onclick="closeSidebar()" aria-label="Close menu">
+    <button class="sidebar-close" id="sidebar-close" onclick="closeSidebar()">
       <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
     <div class="sidebar-logo">
@@ -101,6 +81,10 @@
         Security
       </div>
       <div class="nav-section">Records</div>
+      <div class="nav-item" onclick="goTo('vault', this)">
+        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M12 9v-2M12 17v-2M9 12H7M17 12h-2"/></svg>
+        File Vault <span class="nav-premium-badge">PRO</span>
+      </div>
       <div class="nav-item" onclick="goTo('documents', this)">
         <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
         Documents
@@ -110,6 +94,10 @@
         Warranties
       </div>
       <div class="nav-section">Account</div>
+      <div class="nav-item" onclick="goTo('reminders', this)">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        Reminders <span class="nav-premium-badge">PRO</span>
+      </div>
       <div class="nav-item" onclick="goTo('settings', this)">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
         Settings
@@ -123,7 +111,7 @@
       <div class="user-avatar" id="user-avatar">?</div>
       <div class="user-info">
         <div class="user-name" id="user-display-name">Loading...</div>
-        <div class="user-plan" id="user-email-display"></div>
+        <div class="user-plan" id="user-plan-badge">Free Trial</div>
       </div>
     </div>
     <div class="sidebar-credit">Built by <strong>Letsoalo Tebogo</strong> · © 2026 All rights reserved</div>
@@ -133,7 +121,7 @@
   <div class="main">
     <header class="topbar">
       <div class="topbar-left">
-        <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Open menu">
+        <button class="hamburger" onclick="toggleSidebar()">
           <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
         <div class="page-title" id="page-title">Dashboard</div>
@@ -141,7 +129,7 @@
       <div class="topbar-right">
         <button class="btn btn-ghost" onclick="logoutUser()">
           <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Sign out
+          <span class="btn-text">Sign out</span>
         </button>
         <button class="btn btn-primary" onclick="openModal('addDeviceModal')">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -149,6 +137,13 @@
         </button>
       </div>
     </header>
+
+    <!-- TRIAL BANNER -->
+    <div class="trial-banner" id="trial-banner" style="display:none">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="trial-banner-text"></span>
+      <button class="btn btn-primary" style="font-size:12px;padding:5px 12px;margin-left:auto" onclick="goTo('settings',null);setTimeout(()=>document.getElementById('upgrade-section').scrollIntoView({behavior:'smooth'}),200)">Upgrade to Pro</button>
+    </div>
 
     <div class="content">
 
@@ -207,9 +202,9 @@
               <div class="qa-card-icon qa-red"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
               Report stolen
             </div>
-            <div class="qa-card" onclick="showToast('Upload feature coming soon!')">
+            <div class="qa-card" onclick="goTo('vault', null)">
               <div class="qa-card-icon qa-blue"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
-              Upload receipt
+              File Vault
             </div>
             <div class="qa-card" onclick="exportRecords()">
               <div class="qa-card-icon qa-amber"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
@@ -224,7 +219,7 @@
         <div class="search-row">
           <div class="search-box">
             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="device-search" placeholder="Search by name, IMEI, serial number…" oninput="renderDeviceTable()">
+            <input type="text" id="device-search" placeholder="Search by name, IMEI, model…" oninput="renderDeviceTable()">
           </div>
         </div>
         <div class="devices-table">
@@ -259,16 +254,45 @@
         </div>
       </div>
 
+      <!-- FILE VAULT -->
+      <div class="page" id="page-vault">
+        <div id="vault-locked" style="display:none">
+          <div class="premium-gate">
+            <div class="pg-icon">🔒</div>
+            <div class="pg-title">File Vault is a Pro feature</div>
+            <div class="pg-desc">Store receipts, insurance docs, and photos in the cloud — accessible from any device, anytime.</div>
+            <button class="btn btn-primary" onclick="showUpgradeModal()">Upgrade to Pro</button>
+          </div>
+        </div>
+        <div id="vault-content" style="display:none">
+          <div class="panel" style="margin-bottom:16px">
+            <div class="panel-head">
+              <div class="panel-title">File Vault</div>
+              <label class="btn btn-primary" style="cursor:pointer;font-size:13px">
+                <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload file
+                <input type="file" id="vault-file-input" style="display:none" multiple onchange="uploadVaultFiles(this.files)">
+              </label>
+            </div>
+            <div class="vault-info-bar">
+              <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Files are encrypted and stored securely in your private vault
+            </div>
+            <div id="vault-list"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- DOCUMENTS -->
       <div class="page" id="page-documents">
         <div class="panel">
           <div class="panel-head">
             <div class="panel-title">All documents</div>
-            <button class="btn btn-ghost" style="font-size:12px" onclick="showToast('Upload feature coming soon!')">Upload</button>
+            <button class="btn btn-ghost" style="font-size:12px" onclick="goTo('vault',null)">Go to Vault →</button>
           </div>
           <div class="empty-state">
             <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-            <p>No documents yet — upload receipts, warranties or insurance certificates.</p>
+            <p>Upload receipts, warranties and insurance docs in the File Vault.</p>
           </div>
         </div>
       </div>
@@ -281,6 +305,46 @@
         </div>
       </div>
 
+      <!-- REMINDERS -->
+      <div class="page" id="page-reminders">
+        <div id="reminders-locked" style="display:none">
+          <div class="premium-gate">
+            <div class="pg-icon">🔔</div>
+            <div class="pg-title">Smart Reminders is a Pro feature</div>
+            <div class="pg-desc">Get browser push notifications for warranty expiry, travel safety prompts, and more — even when the app is closed.</div>
+            <button class="btn btn-primary" onclick="showUpgradeModal()">Upgrade to Pro</button>
+          </div>
+        </div>
+        <div id="reminders-content" style="display:none">
+          <div class="panel" style="margin-bottom:16px">
+            <div class="settings-title">Push Notifications</div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-name">Enable push notifications</div><div class="setting-desc">Allow OmniBackup to send you reminders</div></div>
+              <div class="toggle" id="push-toggle" onclick="togglePushNotifications(this)"></div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-name">Warranty expiry alerts</div><div class="setting-desc">Notified 30 days before a warranty expires</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-name">Travel safety reminder</div><div class="setting-desc">Reminds you to share your live location when travelling</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-name">Weekly security digest</div><div class="setting-desc">Summary of your device security score every Monday</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="settings-title">Test Notifications</div>
+            <div class="setting-row">
+              <div class="setting-info"><div class="setting-name">Send test notification</div><div class="setting-desc">Make sure notifications are working on your device</div></div>
+              <button class="btn btn-ghost" style="font-size:12px" onclick="sendTestNotification()">Send test</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- SETTINGS -->
       <div class="page" id="page-settings">
         <div class="settings-section">
@@ -289,22 +353,40 @@
             <div class="setting-info"><div class="setting-name">Full name</div><div class="setting-desc" id="s-name-display">—</div></div>
           </div>
           <div class="setting-row">
-            <div class="setting-info"><div class="setting-name">Email address</div><div class="setting-desc" id="s-email-display">—</div></div>
+            <div class="setting-info"><div class="setting-name">Email</div><div class="setting-desc" id="s-email-display">—</div></div>
           </div>
           <div class="setting-row">
-            <div class="setting-info"><div class="setting-name">Plan</div><div class="setting-desc">Beta — Free</div></div>
-            <span class="pill pill-ok">Active</span>
+            <div class="setting-info"><div class="setting-name">Plan</div><div class="setting-desc" id="s-plan-display">—</div></div>
           </div>
         </div>
-        <div class="settings-section">
-          <div class="settings-title">Notifications</div>
-          <div class="setting-row">
-            <div class="setting-info"><div class="setting-name">Warranty expiry alerts</div><div class="setting-desc">Get notified 30 days before a warranty expires</div></div>
-            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-          </div>
-          <div class="setting-row">
-            <div class="setting-info"><div class="setting-name">Security digest</div><div class="setting-desc">Weekly summary of your device security score</div></div>
-            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        <div class="settings-section" id="upgrade-section">
+          <div class="settings-title">OmniBackup Pro</div>
+          <div class="upgrade-card">
+            <div class="upgrade-card-header">
+              <div>
+                <div style="font-size:18px;font-weight:500;color:var(--text)">Go Pro</div>
+                <div style="font-size:13px;color:var(--text-3);margin-top:2px">Unlock all premium features</div>
+              </div>
+              <div class="price-tag">TBD<span>/mo</span></div>
+            </div>
+            <ul class="upgrade-features">
+              <li>✓ Unlimited devices</li>
+              <li>✓ OmniBot AI Repair Assistant</li>
+              <li>✓ File Vault (cloud storage)</li>
+              <li>✓ Smart Reminders & push notifications</li>
+              <li>✓ Lost device recovery guide</li>
+              <li>✓ Priority support</li>
+            </ul>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <a class="btn btn-primary" href="https://wa.me/27780264271?text=Hi%2C%20I%20want%20to%20upgrade%20to%20OmniBackup%20Pro" target="_blank">
+                <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.136.564 4.14 1.534 5.876L0 24l6.29-1.508A11.955 11.955 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.002-1.368l-.36-.214-3.733.895.929-3.624-.235-.373A9.818 9.818 0 1112 21.818z"/></svg>
+                WhatsApp us
+              </a>
+              <a class="btn btn-ghost" href="mailto:tebogoletsoalo498@gmail.com?subject=OmniBackup%20Pro%20Upgrade" target="_blank">
+                <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                Email us
+              </a>
+            </div>
           </div>
         </div>
         <div class="settings-section">
@@ -356,51 +438,31 @@
 </div><!-- /shell -->
 </div><!-- /app-screen -->
 
-<!-- MODALS -->
+<!-- ===== MODALS ===== -->
+
+<!-- Add Device -->
 <div class="modal-overlay" id="addDeviceModal" onclick="if(event.target===this)closeModal('addDeviceModal')">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title">Add new device</div>
       <div class="modal-close" onclick="closeModal('addDeviceModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Device name *</label>
-      <input class="form-input" id="f-name" type="text" placeholder="e.g. My iPhone 15 Pro">
-    </div>
+    <div class="form-group"><label class="form-label">Device name *</label><input class="form-input" id="f-name" type="text" placeholder="e.g. My iPhone 15 Pro"></div>
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Device type</label>
         <select class="form-input form-select" id="f-type">
-          <option value="phone">Phone</option>
-          <option value="laptop">Laptop</option>
-          <option value="tablet">Tablet</option>
-          <option value="watch">Watch</option>
-          <option value="other">Other</option>
+          <option value="phone">Phone</option><option value="laptop">Laptop</option><option value="tablet">Tablet</option><option value="watch">Watch</option><option value="other">Other</option>
         </select>
       </div>
-      <div class="form-group">
-        <label class="form-label">Brand / Model</label>
-        <input class="form-input" id="f-model" type="text" placeholder="e.g. Apple iPhone 15">
-      </div>
+      <div class="form-group"><label class="form-label">Brand / Model</label><input class="form-input" id="f-model" type="text" placeholder="e.g. Apple iPhone 15"></div>
     </div>
-    <div class="form-group">
-      <label class="form-label">IMEI / Serial number</label>
-      <input class="form-input" id="f-imei" type="text" placeholder="e.g. 352999001234567" style="font-family:'DM Mono',monospace">
-    </div>
+    <div class="form-group"><label class="form-label">IMEI / Serial number</label><input class="form-input" id="f-imei" type="text" placeholder="e.g. 352999001234567" style="font-family:'DM Mono',monospace"></div>
     <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Purchase date</label>
-        <input class="form-input" id="f-date" type="date">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Warranty expiry</label>
-        <input class="form-input" id="f-warranty" type="date">
-      </div>
+      <div class="form-group"><label class="form-label">Purchase date</label><input class="form-input" id="f-date" type="date"></div>
+      <div class="form-group"><label class="form-label">Warranty expiry</label><input class="form-input" id="f-warranty" type="date"></div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Notes</label>
-      <textarea class="form-input form-textarea" id="f-notes" placeholder="e.g. Work laptop, insured under policy #X"></textarea>
-    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-input form-textarea" id="f-notes" placeholder="e.g. Work laptop, insured under policy #X"></textarea></div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal('addDeviceModal')">Cancel</button>
       <button class="btn btn-primary" onclick="addDevice()">Save device</button>
@@ -408,32 +470,18 @@
   </div>
 </div>
 
+<!-- Stolen Report -->
 <div class="modal-overlay" id="stolenModal" onclick="if(event.target===this)closeModal('stolenModal')">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title">Report stolen device</div>
       <div class="modal-close" onclick="closeModal('stolenModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Device *</label>
-      <select class="form-input form-select" id="sr-device"></select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Date stolen *</label>
-      <input class="form-input" type="date" id="sr-date">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Last known location</label>
-      <input class="form-input" type="text" id="sr-location" placeholder="e.g. Polokwane, Limpopo">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Police case number (if available)</label>
-      <input class="form-input" type="text" id="sr-police" placeholder="e.g. CAS 204/06/2026">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Description of incident</label>
-      <textarea class="form-input form-textarea" id="sr-desc" placeholder="Briefly describe how the device was stolen…"></textarea>
-    </div>
+    <div class="form-group"><label class="form-label">Device *</label><select class="form-input form-select" id="sr-device"></select></div>
+    <div class="form-group"><label class="form-label">Date stolen *</label><input class="form-input" type="date" id="sr-date"></div>
+    <div class="form-group"><label class="form-label">Last known location</label><input class="form-input" type="text" id="sr-location" placeholder="e.g. Polokwane, Limpopo"></div>
+    <div class="form-group"><label class="form-label">Police case number (if available)</label><input class="form-input" type="text" id="sr-police" placeholder="e.g. CAS 204/06/2026"></div>
+    <div class="form-group"><label class="form-label">Description of incident</label><textarea class="form-input form-textarea" id="sr-desc" placeholder="Briefly describe how the device was stolen…"></textarea></div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal('stolenModal')">Cancel</button>
       <button class="btn btn-danger" onclick="fileReport()">File report</button>
@@ -441,8 +489,87 @@
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- Device Detail + OmniBot -->
+<div class="modal-overlay" id="deviceDetailModal" onclick="if(event.target===this)closeModal('deviceDetailModal')">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div id="detail-thumb"></div>
+        <div>
+          <div class="modal-title" id="detail-name">Device</div>
+          <div style="font-size:12px;color:var(--text-3)" id="detail-model"></div>
+        </div>
+      </div>
+      <div class="modal-close" onclick="closeModal('deviceDetailModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    </div>
+    <div class="detail-info-strip" id="detail-info-strip"></div>
+    <div id="omnibot-locked" style="display:none">
+      <div class="premium-gate" style="margin:0;border-radius:var(--radius-lg);border:1px solid var(--border)">
+        <div class="pg-icon">🤖</div>
+        <div class="pg-title">OmniBot is a Pro feature</div>
+        <div class="pg-desc">Get step-by-step AI repair guidance for this device.</div>
+        <button class="btn btn-primary" onclick="closeModal('deviceDetailModal');showUpgradeModal()">Upgrade to Pro</button>
+      </div>
+    </div>
+    <div id="omnibot-section" style="display:none">
+      <div class="ai-section">
+        <div class="ai-section-header">
+          <div class="ai-badge">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 010 2h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 010-2h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2z"/></svg>
+            OmniBot
+          </div>
+          <span style="font-size:11px;color:var(--text-3)">Powered by Claude</span>
+        </div>
+        <div class="ai-chat-box" id="ai-chat-box"></div>
+        <div class="ai-input-row">
+          <input class="ai-input" id="ai-input" type="text" placeholder="Describe the problem with your device…" onkeydown="if(event.key==='Enter')sendAIMessage()">
+          <button class="ai-send-btn" onclick="sendAIMessage()">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
+<!-- Upgrade Modal -->
+<div class="modal-overlay" id="upgradeModal" onclick="if(event.target===this)closeModal('upgradeModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Upgrade to OmniBackup Pro</div>
+      <div class="modal-close" onclick="closeModal('upgradeModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    </div>
+    <div class="upgrade-card" style="margin-bottom:0;border:none;padding:0;box-shadow:none">
+      <div class="upgrade-card-header">
+        <div>
+          <div style="font-size:18px;font-weight:500;color:var(--text)">Go Pro</div>
+          <div style="font-size:13px;color:var(--text-3);margin-top:2px">Unlock everything in OmniBackup</div>
+        </div>
+        <div class="price-tag">TBD<span>/mo</span></div>
+      </div>
+      <ul class="upgrade-features">
+        <li>✓ Unlimited devices</li>
+        <li>✓ OmniBot AI Repair Assistant</li>
+        <li>✓ File Vault (cloud storage)</li>
+        <li>✓ Smart Reminders & push notifications</li>
+        <li>✓ Lost device recovery guide</li>
+        <li>✓ Priority support</li>
+      </ul>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a class="btn btn-primary" style="flex:1;justify-content:center" href="https://wa.me/27780264271?text=Hi%2C%20I%20want%20to%20upgrade%20to%20OmniBackup%20Pro" target="_blank">
+          <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.136.564 4.14 1.534 5.876L0 24l6.29-1.508A11.955 11.955 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.002-1.368l-.36-.214-3.733.895.929-3.624-.235-.373A9.818 9.818 0 1112 21.818z"/></svg>
+          WhatsApp us
+        </a>
+        <a class="btn btn-ghost" style="flex:1;justify-content:center" href="mailto:tebogoletsoalo498@gmail.com?subject=OmniBackup%20Pro%20Upgrade" target="_blank">
+          <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Email us
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 <script type="module" src="app.js"></script>
 </body>
 </html>
