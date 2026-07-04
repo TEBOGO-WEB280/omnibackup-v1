@@ -6,64 +6,17 @@
   <title>OmniBackup — Device Management Platform</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('omni-theme') === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
-
-<!-- ============= ONBOARDING OVERLAY ============= -->
-<div id="onboarding-overlay" style="display:none">
-  <div class="onboarding-box">
-    <div class="ob-step active" id="ob-step-1">
-      <div class="ob-icon">
-  <svg viewBox="0 0 24 24">
-    <path d="M12 2L4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3z"/>
-  </svg>
-</div>
-      <div class="ob-title">Welcome to OmniBackup</div>
-      <div class="ob-desc">Your all-in-one platform to track devices, manage warranties, and recover from theft — all in one secure place.</div>
-    </div>
-    <div class="ob-step" id="ob-step-2">
-    <div class="ob-icon">
-  <svg viewBox="0 0 24 24">
-    <rect x="7" y="2" width="10" height="20" rx="2"/>
-    <circle cx="12" cy="18" r="1"/>
-  </svg>
-</div>  
-      <div class="ob-title">Register your devices</div>
-      <div class="ob-desc">Add your phones, laptops, tablets and watches. Store IMEI numbers, purchase dates, warranty expiry and even receipt photos.</div>
-    </div>
-    <div class="ob-step" id="ob-step-3">
-    <div class="ob-icon">
-  <svg viewBox="0 0 24 24">
-    <rect x="7" y="8" width="10" height="8" rx="2"/>
-    <circle cx="10" cy="12" r="1"/>
-    <circle cx="14" cy="12" r="1"/>
-    <path d="M12 5v3M9 3h6"/>
-  </svg>
-</div>  
-      <div class="ob-title">OmniBot AI Assistant</div>
-      <div class="ob-desc">Having issues with a device? Tap any device and OmniBot will walk you through step-by-step repair guidance powered by AI.</div>
-    </div>
-    <div class="ob-step" id="ob-step-4">
-    <div class="ob-icon">
-  <svg viewBox="0 0 24 24">
-    <path d="M12 2l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>
-  </svg>
-</div>  
-      <div class="ob-title">You're all set!</div>
-      <div class="ob-desc">Start by adding your first device. Upgrade to Pro anytime to unlock unlimited devices, File Vault, smart reminders and more.</div>
-    </div>
-    <div class="ob-dots" id="ob-dots">
-      <div class="ob-dot active"></div>
-      <div class="ob-dot"></div>
-      <div class="ob-dot"></div>
-      <div class="ob-dot"></div>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
-      <button class="btn btn-ghost" onclick="finishOnboarding()">Skip</button>
-      <button class="btn btn-primary" id="ob-next-btn" onclick="nextOnboardingStep()">Next →</button>
-    </div>
-  </div>
-</div>
 
 <!-- ============= AUTH SCREEN ============= -->
 <div id="auth-screen">
@@ -74,41 +27,116 @@
       </div>
       <div class="logo-name">Omni<span>Backup</span></div>
     </div>
+
+    <!-- Login Form -->
     <div class="auth-card" id="login-form">
       <div class="auth-title">Welcome back</div>
       <div class="auth-sub">Sign in to your OmniBackup account</div>
-      <div class="form-group"><label class="form-label">Email address</label><input class="form-input" id="login-email" type="email" placeholder="you@example.com"></div>
-      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="login-password" type="password" placeholder="••••••••"></div>
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input class="form-input" id="login-email" type="email" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="login-password" type="password" placeholder="••••••••">
+      </div>
       <div class="auth-error" id="login-error"></div>
       <button class="btn btn-primary auth-btn" onclick="loginUser()">Sign in</button>
       <div class="auth-switch">Don't have an account? <a onclick="showRegister()">Create one →</a></div>
     </div>
+
+    <!-- Register Form -->
     <div class="auth-card" id="register-form" style="display:none">
       <div class="auth-title">Create account</div>
-      <div class="auth-sub">Start with a free 7-day trial — no card needed</div>
-      <div class="form-group"><label class="form-label">Full name</label><input class="form-input" id="reg-name" type="text" placeholder="e.g. John Doe"></div>
-      <div class="form-group"><label class="form-label">Email address</label><input class="form-input" id="reg-email" type="email" placeholder="you@example.com"></div>
-      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="reg-password" type="password" placeholder="Min. 6 characters"></div>
+      <div class="auth-sub">Start tracking your devices for free</div>
+      <div class="form-group">
+        <label class="form-label">Full name</label>
+        <input class="form-input" id="reg-name" type="text" placeholder="e.g. John Doe">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input class="form-input" id="reg-email" type="email" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="reg-password" type="password" placeholder="Min. 8 characters" oninput="checkPasswordStrength()">
+        <div class="pw-meter"><div class="pw-meter-fill" id="pw-meter-fill"></div></div>
+        <ul class="pw-requirements" id="pw-requirements">
+          <li id="pw-req-length">At least 8 characters</li>
+          <li id="pw-req-upper">One uppercase letter</li>
+          <li id="pw-req-lower">One lowercase letter</li>
+          <li id="pw-req-number">One number</li>
+          <li id="pw-req-symbol">One symbol (e.g. ! @ # $)</li>
+        </ul>
+      </div>
       <div class="auth-error" id="reg-error"></div>
-      <button class="btn btn-primary auth-btn" onclick="registerUser()">Start free trial</button>
+      <button class="btn btn-primary auth-btn" onclick="registerUser()">Create account</button>
       <div class="auth-switch">Already have an account? <a onclick="showLogin()">Sign in →</a></div>
     </div>
+
     <div class="auth-footer">Built by <strong>Letsoalo Tebogo</strong> · © 2026 OmniBackup. All rights reserved.</div>
   </div>
 </div>
 
-<!-- SIDEBAR OVERLAY BACKDROP -->
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+<!-- ============= TERMS & CONDITIONS SCREEN ============= -->
+<div id="terms-screen" style="display:none">
+  <div class="terms-wrap">
+    <div class="auth-logo" style="justify-content:center;margin-bottom:20px">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="logo-name">Omni<span>Backup</span></div>
+    </div>
+    <div class="terms-card">
+      <div class="auth-title">Before you continue</div>
+      <div class="auth-sub">Please read and accept our Terms &amp; Conditions to finish setting up your account.</div>
+      <div class="terms-scroll" id="terms-text">
+        <p><strong>1. Acceptance of terms</strong><br>By creating an account and using OmniBackup, you agree to be bound by these Terms &amp; Conditions. If you do not agree, please do not use the service.</p>
+        <p><strong>2. Purpose of the service</strong><br>OmniBackup is a personal device record-keeping tool. It allows you to store device details, IMEI/serial numbers, warranty dates, and stolen device reports for your own reference.</p>
+        <p><strong>3. Account responsibility</strong><br>You are responsible for keeping your login credentials confidential and for all activity that occurs under your account.</p>
+        <p><strong>4. Accuracy of information</strong><br>You are solely responsible for the accuracy of the information you enter, including device identifiers and stolen device reports. OmniBackup does not verify this information with any third party, including law enforcement or manufacturers.</p>
+        <p><strong>5. No guarantee of recovery</strong><br>OmniBackup is a record-keeping tool only. Filing a stolen device report in the app does not notify police, network carriers, or manufacturers, and does not guarantee recovery of a lost or stolen device.</p>
+        <p><strong>6. Data storage</strong><br>Your data is stored using Firebase, a third-party cloud platform, and is encrypted in transit and at rest. Reasonable security measures are used to protect your data, but no system can be guaranteed 100% secure.</p>
+        <p><strong>7. Termination</strong><br>You may stop using OmniBackup at any time. We reserve the right to suspend accounts that misuse the service.</p>
+        <p><strong>8. Changes to these terms</strong><br>These terms may be updated from time to time. Continued use of the app after changes constitutes acceptance of the revised terms.</p>
+        <p style="color:var(--text-3);font-size:11px;margin-top:16px">This is placeholder text and has not been reviewed by a lawyer. Replace with your own reviewed Terms &amp; Conditions before launch.</p>
+      </div>
+      <label class="terms-check-row">
+        <input type="checkbox" id="terms-checkbox" onchange="toggleTermsButton()">
+        <span>I have read and accept the Terms &amp; Conditions and Privacy Policy.</span>
+      </label>
+      <div class="auth-error" id="terms-error"></div>
+      <button class="btn btn-primary auth-btn" id="terms-continue-btn" disabled onclick="acceptTerms()">Continue to app</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============= VERIFY EMAIL SCREEN ============= -->
+<div id="verify-screen" style="display:none">
+  <div class="terms-wrap">
+    <div class="auth-logo" style="justify-content:center;margin-bottom:20px">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="logo-name">Omni<span>Backup</span></div>
+    </div>
+    <div class="terms-card" style="text-align:center">
+      <div class="auth-title">Verify your email</div>
+      <div class="auth-sub">We sent a verification link to <strong id="verify-email-display"></strong>. Please click it, then come back here and continue.</div>
+      <div class="auth-error" id="verify-error"></div>
+      <button class="btn btn-primary auth-btn" onclick="checkVerification()">I've verified — Continue</button>
+      <div class="auth-switch">Didn't get it? <a onclick="resendVerification()">Resend verification email →</a></div>
+      <div class="auth-switch"><a onclick="logoutUser()">Use a different account →</a></div>
+    </div>
+  </div>
+</div>
 
 <!-- ============= APP SCREEN ============= -->
 <div id="app-screen" style="display:none">
 <div class="shell">
 
   <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <button class="sidebar-close" id="sidebar-close" onclick="closeSidebar()">
-      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
+  <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="logo-icon">
         <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
@@ -130,22 +158,17 @@
       <div class="nav-section">Security</div>
       <div class="nav-item" onclick="goTo('stolen', this)">
         <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        Report
-      </div>
-      <!-- NEW: Recovery Guide in sidebar -->
-      <div class="nav-item" onclick="goTo('recovery', this)">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        Recovery guide <span class="nav-premium-badge">PRO</span>
+        Stolen reports
       </div>
       <div class="nav-item" onclick="goTo('security', this)">
         <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         Security
       </div>
-      <div class="nav-section">Records</div>
-      <div class="nav-item" onclick="goTo('vault', this)">
-        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M12 9v-2M12 17v-2M9 12H7M17 12h-2"/></svg>
-        File Vault <span class="nav-premium-badge">PRO</span>
+      <div class="nav-item" onclick="goTo('emergency', this)">
+        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        Emergency numbers
       </div>
+      <div class="nav-section">Records</div>
       <div class="nav-item" onclick="goTo('documents', this)">
         <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
         Documents
@@ -155,10 +178,6 @@
         Warranties
       </div>
       <div class="nav-section">Account</div>
-      <div class="nav-item" onclick="goTo('reminders', this)">
-        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        Reminders <span class="nav-premium-badge">PRO</span>
-      </div>
       <div class="nav-item" onclick="goTo('settings', this)">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
         Settings
@@ -172,7 +191,7 @@
       <div class="user-avatar" id="user-avatar">?</div>
       <div class="user-info">
         <div class="user-name" id="user-display-name">Loading...</div>
-        <div class="user-plan" id="user-plan-badge">Free Trial</div>
+        <div class="user-plan" id="user-email-display"></div>
       </div>
     </div>
     <div class="sidebar-credit">Built by <strong>Letsoalo Tebogo</strong> · © 2026 All rights reserved</div>
@@ -182,29 +201,21 @@
   <div class="main">
     <header class="topbar">
       <div class="topbar-left">
-        <button class="hamburger" onclick="toggleSidebar()">
-          <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <button class="icon-btn menu-toggle-btn" onclick="toggleMobileSidebar()" title="Menu">
+          <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
-        <!-- ✅ NEW: Back button (hidden on dashboard, shown on all other pages) -->
-        <button class="back-btn" id="back-btn" onclick="goBack()" style="display:none">
-          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-          Back
+        <button class="icon-btn" id="back-btn" onclick="goBack()" title="Back" style="display:none">
+          <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         </button>
         <div class="page-title" id="page-title">Dashboard</div>
       </div>
       <div class="topbar-right">
-        <!-- ✅ NEW: Dark / Light mode toggle button -->
-        <button class="icon-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle dark/light mode">
-          <svg id="theme-icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-          <svg id="theme-icon-sun" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        </button>
-        <!-- ✅ NEW: Feedback button -->
-        <button class="icon-btn" onclick="openModal('feedbackModal')" title="Send feedback">
-          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        <button class="icon-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle dark mode">
+          <svg id="theme-icon" viewBox="0 0 24 24" style="width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         </button>
         <button class="btn btn-ghost" onclick="logoutUser()">
           <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          <span class="btn-text">Sign out</span>
+          Sign out
         </button>
         <button class="btn btn-primary" onclick="openModal('addDeviceModal')">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -213,14 +224,12 @@
       </div>
     </header>
 
-    <!-- TRIAL BANNER -->
-    <div class="trial-banner" id="trial-banner" style="display:none">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <span id="trial-banner-text"></span>
-      <button class="btn btn-primary" style="font-size:12px;padding:5px 12px;margin-left:auto" onclick="goTo('settings',null);setTimeout(()=>document.getElementById('upgrade-section').scrollIntoView({behavior:'smooth'}),200)">Upgrade to Pro</button>
-    </div>
-
     <div class="content">
+
+      <div class="alert-banner alert-warning" id="verify-banner" style="display:none">
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Please verify your email address to secure your account. <a onclick="resendVerification()">Resend verification email →</a></span>
+      </div>
 
       <!-- DASHBOARD -->
       <div class="page active" id="page-dashboard">
@@ -250,16 +259,6 @@
             <div class="metric-label">Stolen reports</div>
           </div>
         </div>
-
-        <!-- ✅ NEW: Dashboard chart panel -->
-        <div class="panel" style="margin-bottom:20px">
-          <div class="panel-head">
-            <div class="panel-title">Device overview</div>
-            <div style="font-size:11px;color:var(--text-3)">By type</div>
-          </div>
-          <div id="dash-chart-area" style="padding:4px 0"></div>
-        </div>
-
         <div class="two-col">
           <div class="panel">
             <div class="panel-head">
@@ -287,13 +286,12 @@
               <div class="qa-card-icon qa-red"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
               Report stolen
             </div>
-            <!-- ✅ CHANGED: vault → recovery guide as a quick action -->
-            <div class="qa-card" onclick="goTo('recovery', null)">
-              <div class="qa-card-icon qa-amber"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-              Recovery guide
+            <div class="qa-card" onclick="showToast('Upload feature coming soon!')">
+              <div class="qa-card-icon qa-blue"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+              Upload receipt
             </div>
             <div class="qa-card" onclick="exportRecords()">
-              <div class="qa-card-icon qa-blue"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+              <div class="qa-card-icon qa-amber"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
               Export records
             </div>
           </div>
@@ -305,7 +303,7 @@
         <div class="search-row">
           <div class="search-box">
             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="device-search" placeholder="Search by name, IMEI, model…" oninput="renderDeviceTable()">
+            <input type="text" id="device-search" placeholder="Search by name, IMEI, serial number…" oninput="renderDeviceTable()">
           </div>
         </div>
         <div class="devices-table">
@@ -332,110 +330,6 @@
         <div id="stolen-list"></div>
       </div>
 
-      <!-- ✅ NEW: LOST DEVICE RECOVERY GUIDE PAGE -->
-      <div class="page" id="page-recovery">
-        <div id="recovery-locked" style="display:none">
-          <div class="premium-gate">
-            <div class="pg-icon">
-<svg viewBox="0 0 24 24">
-<circle cx="11" cy="11" r="7"></circle>
-<line x1="20" y1="20" x2="16.5" y2="16.5"></line>
-</svg>
-</div>
-            <div class="pg-title">Recovery Guide is a Pro feature</div>
-            <div class="pg-desc">Get a step-by-step action plan to recover your lost or stolen device, including carrier block guides and police report tips.</div>
-            <button class="btn btn-primary" onclick="showUpgradeModal()">Upgrade to Pro</button>
-          </div>
-        </div>
-        <div id="recovery-content" style="display:none">
-          <div class="panel" style="margin-bottom:16px">
-            <div class="panel-head">
-              <div class="panel-title">Lost Device Recovery Guide</div>
-              <span class="nav-premium-badge">PRO</span>
-            </div>
-            <div class="recovery-steps">
-
-              <div class="recovery-step">
-                <div class="rs-number">1</div>
-                <div class="rs-body">
-                  <div class="rs-title">Act immediately — within the first hour</div>
-                  <div class="rs-desc">The first 60 minutes are critical. Use another device to remotely lock or wipe yours. iPhone: iCloud.com → Find My. Android: android.com/find. Samsung: findmymobile.samsung.com.</div>
-                </div>
-              </div>
-
-              <div class="recovery-step">
-                <div class="rs-number">2</div>
-                <div class="rs-body">
-                  <div class="rs-title">Change all passwords immediately</div>
-                  <div class="rs-desc">Change passwords for your email, banking apps, and social media. Enable two-factor authentication on all accounts if not already done.</div>
-                </div>
-              </div>
-
-              <div class="recovery-step">
-                <div class="rs-number">3</div>
-                <div class="rs-body">
-                  <div class="rs-title">Contact your mobile network operator</div>
-                  <div class="rs-desc">Call your carrier (Vodacom, MTN, Cell C, Telkom) and report the IMEI number. They can block the device from all networks, making it unusable even with a new SIM.</div>
-                  <div class="pg-icon">
-<svg viewBox="0 0 24 24">
-<circle cx="11" cy="11" r="7"></circle>
-<line x1="20" y1="20" x2="16.5" y2="16.5"></line>
-</svg>
-</div>
-                </div>
-              </div>
-
-              <div class="recovery-step">
-                <div class="rs-number">4</div>
-                <div class="rs-body">
-                  <div class="rs-title">File a police report</div>
-                  <div class="rs-desc">Visit your nearest SAPS station. Bring your IMEI number, proof of purchase, and serial numbers. Get your case number — you need it for insurance claims.</div>
-                  <div class="rs-tip">📋 You can link your police case number to your stolen report inside OmniBackup.</div>
-                </div>
-              </div>
-
-              <div class="recovery-step">
-                <div class="rs-number">5</div>
-                <div class="rs-body">
-                  <div class="rs-title">Contact your insurer</div>
-                  <div class="rs-desc">Contact your insurer with the police case number, IMEI/serial number, receipt (from your OmniBackup vault), and policy number. Most claims must be submitted within 48 hours.</div>
-                </div>
-              </div>
-
-              <div class="recovery-step">
-                <div class="rs-number">6</div>
-                <div class="rs-body">
-                  <div class="rs-title">Check second-hand markets</div>
-                  <div class="rs-desc">Monitor OLX, Facebook Marketplace, and Gumtree for your device. If you find a listing, do not confront the seller — report it to SAPS with your case number.</div>
-                </div>
-              </div>
-
-              <div class="recovery-step">
-                <div class="rs-number">7</div>
-                <div class="rs-body">
-                  <div class="rs-title">Report to SAFPS</div>
-                  <div class="rs-desc">Register the stolen device at safps.org.za to prevent identity fraud. If your phone had banking apps or personal documents, this step is critical.</div>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Emergency contacts block -->
-            <div style="margin-top:20px;background:var(--green-light);border:1px solid rgba(29,158,117,.15);border-radius:var(--radius-lg);padding:16px">
-              <div style="font-size:13px;font-weight:500;color:var(--green-dark);margin-bottom:12px">📞 Emergency contacts</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                <div class="recovery-contact"><div class="rc-name">SAPS Emergency</div><div class="rc-num">10111</div></div>
-                <div class="recovery-contact"><div class="rc-name">Crime Stop</div><div class="rc-num">08600 10111</div></div>
-                <div class="recovery-contact"><div class="rc-name">Vodacom</div><div class="rc-num">082 111</div></div>
-                <div class="recovery-contact"><div class="rc-name">MTN</div><div class="rc-num">083 173</div></div>
-                <div class="recovery-contact"><div class="rc-name">Cell C</div><div class="rc-num">084 145</div></div>
-                <div class="recovery-contact"><div class="rc-name">Telkom</div><div class="rc-num">10213</div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- SECURITY -->
       <div class="page" id="page-security">
         <div class="panel" style="margin-bottom:16px">
@@ -444,37 +338,16 @@
         </div>
       </div>
 
-      <!-- FILE VAULT -->
-      <div class="page" id="page-vault">
-        <div id="vault-locked" style="display:none">
-          <div class="premium-gate">
-           <div class="pg-icon">
-<svg viewBox="0 0 24 24">
-<rect x="5" y="11" width="14" height="10" rx="2"></rect>
-<path d="M8 11V8a4 4 0 0 1 8 0v3"></path>
-</svg>
-</div> 
-            <div class="pg-title">File Vault is a Pro feature</div>
-            <div class="pg-desc">Store receipts, insurance docs, and photos in the cloud — accessible from any device, anytime.</div>
-            <button class="btn btn-primary" onclick="showUpgradeModal()">Upgrade to Pro</button>
-          </div>
+      <!-- EMERGENCY NUMBERS -->
+      <div class="page" id="page-emergency">
+        <div class="panel" style="margin-bottom:16px">
+          <div class="panel-title" style="margin-bottom:6px">Report a stolen or lost device</div>
+          <div style="font-size:12px;color:var(--text-3);margin-bottom:16px">Save these somewhere safe — you'll need them fast if a device goes missing. Numbers occasionally change, so it's worth double-checking with your provider once in a while.</div>
+          <div class="emergency-grid" id="emergency-list"></div>
         </div>
-        <div id="vault-content" style="display:none">
-          <div class="panel" style="margin-bottom:16px">
-            <div class="panel-head">
-              <div class="panel-title">File Vault</div>
-              <label class="btn btn-primary" style="cursor:pointer;font-size:13px">
-                <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                Upload file
-                <input type="file" id="vault-file-input" style="display:none" multiple onchange="uploadVaultFiles(this.files)">
-              </label>
-            </div>
-            <div class="vault-info-bar">
-              <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              Files are encrypted and stored securely in your private vault
-            </div>
-            <div id="vault-list"></div>
-          </div>
+        <div class="panel">
+          <div class="panel-title" style="margin-bottom:10px">For insurance claims</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.8">Most insurers will ask for: your device's IMEI number, a SAPS case number (get this when you report at a police station or via Crime Stop), and proof that the SIM/device was blocked or blacklisted with your network. Your <a onclick="goTo('devices', null)" style="color:var(--green);cursor:pointer;font-weight:500">device records</a> already have your IMEI numbers saved, ready for this.</div>
         </div>
       </div>
 
@@ -483,11 +356,13 @@
         <div class="panel">
           <div class="panel-head">
             <div class="panel-title">All documents</div>
-            <button class="btn btn-ghost" style="font-size:12px" onclick="goTo('vault',null)">Go to Vault →</button>
+            <button class="btn btn-ghost" style="font-size:12px" onclick="openModal('uploadDocModal')">Upload</button>
           </div>
-          <div class="empty-state">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-            <p>Upload receipts, warranties and insurance docs in the File Vault.</p>
+          <div id="documents-list">
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+              <p>No documents yet — upload receipts, warranties or insurance certificates.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -500,51 +375,6 @@
         </div>
       </div>
 
-      <!-- REMINDERS -->
-      <div class="page" id="page-reminders">
-        <div id="reminders-locked" style="display:none">
-          <div class="premium-gate">
-          <div class="pg-icon">
-<svg viewBox="0 0 24 24">
-<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
-<path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-</svg>
-</div>  
-            <div class="pg-title">Smart Reminders is a Pro feature</div>
-            <div class="pg-desc">Get browser push notifications for warranty expiry, travel safety prompts, and more — even when the app is closed.</div>
-            <button class="btn btn-primary" onclick="showUpgradeModal()">Upgrade to Pro</button>
-          </div>
-        </div>
-        <div id="reminders-content" style="display:none">
-          <div class="panel" style="margin-bottom:16px">
-            <div class="settings-title">Push Notifications</div>
-            <div class="setting-row">
-              <div class="setting-info"><div class="setting-name">Enable push notifications</div><div class="setting-desc">Allow OmniBackup to send you reminders</div></div>
-              <div class="toggle" id="push-toggle" onclick="togglePushNotifications(this)"></div>
-            </div>
-            <div class="setting-row">
-              <div class="setting-info"><div class="setting-name">Warranty expiry alerts</div><div class="setting-desc">Notified 30 days before a warranty expires</div></div>
-              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-            </div>
-            <div class="setting-row">
-              <div class="setting-info"><div class="setting-name">Travel safety reminder</div><div class="setting-desc">Reminds you to share your live location when travelling</div></div>
-              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-            </div>
-            <div class="setting-row">
-              <div class="setting-info"><div class="setting-name">Weekly security digest</div><div class="setting-desc">Summary of your device security score every Monday</div></div>
-              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-            </div>
-          </div>
-          <div class="panel">
-            <div class="settings-title">Test Notifications</div>
-            <div class="setting-row">
-              <div class="setting-info"><div class="setting-name">Send test notification</div><div class="setting-desc">Make sure notifications are working on your device</div></div>
-              <button class="btn btn-ghost" style="font-size:12px" onclick="sendTestNotification()">Send test</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- SETTINGS -->
       <div class="page" id="page-settings">
         <div class="settings-section">
@@ -553,73 +383,29 @@
             <div class="setting-info"><div class="setting-name">Full name</div><div class="setting-desc" id="s-name-display">—</div></div>
           </div>
           <div class="setting-row">
-            <div class="setting-info"><div class="setting-name">Email</div><div class="setting-desc" id="s-email-display">—</div></div>
+            <div class="setting-info"><div class="setting-name">Email address</div><div class="setting-desc" id="s-email-display">—</div></div>
           </div>
           <div class="setting-row">
-            <div class="setting-info"><div class="setting-name">Plan</div><div class="setting-desc" id="s-plan-display">—</div></div>
+            <div class="setting-info"><div class="setting-name">Plan</div><div class="setting-desc" id="s-plan-desc">Beta — Free</div></div>
+            <button class="btn btn-primary" style="font-size:12px" id="upgrade-btn" onclick="upgradeToPro()">Upgrade to Pro</button>
           </div>
         </div>
-
-        <!-- ✅ NEW: Appearance section with dark mode toggle -->
         <div class="settings-section">
           <div class="settings-title">Appearance</div>
           <div class="setting-row">
-            <div class="setting-info"><div class="setting-name">Dark mode</div><div class="setting-desc">Switch between dark and light themes</div></div>
+            <div class="setting-info"><div class="setting-name">Dark mode</div><div class="setting-desc">Switch between light and dark themes</div></div>
             <div class="toggle" id="dark-mode-toggle" onclick="toggleTheme()"></div>
           </div>
         </div>
-
-        <div class="settings-section" id="upgrade-section">
-          <div class="settings-title">OmniBackup Pro</div>
-
-          <!-- Shown when user is already Pro -->
-          <div id="pro-already-active" style="display:none">
-            <div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--green-light);border-radius:var(--radius-lg)">
-              <div style="font-size:28px">✅</div>
-              <div>
-                <div style="font-size:14px;font-weight:500;color:var(--green-dark)">You're on Pro!</div>
-                <div style="font-size:12px;color:var(--green-dark);margin-top:2px;opacity:.8">All features are unlocked. Enjoy!</div>
-              </div>
-            </div>
+        <div class="settings-section">
+          <div class="settings-title">Notifications</div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-name">Warranty expiry alerts</div><div class="setting-desc">Get notified 30 days before a warranty expires</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
           </div>
-
-          <div id="pro-upgrade-card" class="upgrade-card">
-            <div class="upgrade-card-header">
-              <div>
-                <div style="font-size:18px;font-weight:500;color:var(--text)">Go Pro</div>
-                <div style="font-size:13px;color:var(--text-3);margin-top:2px">Unlock all premium features</div>
-              </div>
-              <div class="price-tag">TBD<span>/mo</span></div>
-            </div>
-            <ul class="upgrade-features">
-              <li>✓ Unlimited devices</li>
-              <li>✓ OmniBot AI Repair Assistant</li>
-              <li>✓ File Vault (cloud storage)</li>
-              <li>✓ Smart Reminders &amp; push notifications</li>
-              <li>✓ Lost device recovery guide</li>
-              <li>✓ Priority support</li>
-            </ul>
-
-            <!-- ✅ NEW: Self-serve Pro activation via code -->
-            <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px">
-              <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:8px">🔑 Activate Pro with a code</div>
-              <div style="display:flex;gap:8px">
-                <input class="form-input" id="promo-code-input" type="text" placeholder="Enter your Pro access code" style="margin:0">
-                <button class="btn btn-primary" onclick="activateProCode()" style="white-space:nowrap">Activate</button>
-              </div>
-              <div style="font-size:11px;color:var(--text-3);margin-top:6px">Contact us on WhatsApp or email to receive your code after payment.</div>
-            </div>
-
-            <div style="display:flex;gap:10px;flex-wrap:wrap">
-              <a class="btn btn-primary" href="https://wa.me/27780264271?text=Hi%2C%20I%20want%20to%20upgrade%20to%20OmniBackup%20Pro" target="_blank">
-                <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.136.564 4.14 1.534 5.876L0 24l6.29-1.508A11.955 11.955 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.002-1.368l-.36-.214-3.733.895.929-3.624-.235-.373A9.818 9.818 0 1112 21.818z"/></svg>
-                WhatsApp us
-              </a>
-              <a class="btn btn-ghost" href="mailto:tebogoletsoalo498@gmail.com?subject=OmniBackup%20Pro%20Upgrade" target="_blank">
-                <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                Email us
-              </a>
-            </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-name">Security digest</div><div class="setting-desc">Weekly summary of your device security score</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
           </div>
         </div>
         <div class="settings-section">
@@ -669,49 +455,72 @@
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /shell -->
+
+<!-- OMNIBOT WIDGET -->
+<div class="omnibot-btn" id="omnibot-btn" onclick="toggleOmniBot()" title="OmniBot">
+  <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+  <span class="omnibot-badge">PRO</span>
+</div>
+
+<div class="omnibot-panel" id="omnibot-panel">
+  <div class="omnibot-head">
+    <div class="omnibot-head-icon"><svg viewBox="0 0 24 24" style="fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></div>
+    <div style="flex:1">
+      <div class="omnibot-title">OmniBot</div>
+      <div class="omnibot-sub">Device security assistant</div>
+    </div>
+    <div class="omnibot-close" onclick="toggleOmniBot()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <div id="omnibot-body"></div>
+</div>
+
 </div><!-- /app-screen -->
 
-<!-- ===== MODALS ===== -->
-
-<!-- Add Device -->
+<!-- MODALS -->
 <div class="modal-overlay" id="addDeviceModal" onclick="if(event.target===this)closeModal('addDeviceModal')">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title">Add new device</div>
       <div class="modal-close" onclick="closeModal('addDeviceModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
     </div>
-    <div class="form-group"><label class="form-label">Device name *</label><input class="form-input" id="f-name" type="text" placeholder="e.g. My iPhone 15 Pro"></div>
+    <div class="form-group">
+      <label class="form-label">Device name *</label>
+      <input class="form-input" id="f-name" type="text" placeholder="e.g. My iPhone 15 Pro">
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Device type</label>
         <select class="form-input form-select" id="f-type">
-          <option value="phone">Phone</option><option value="laptop">Laptop</option><option value="tablet">Tablet</option><option value="watch">Watch</option><option value="other">Other</option>
+          <option value="phone">Phone</option>
+          <option value="laptop">Laptop</option>
+          <option value="tablet">Tablet</option>
+          <option value="watch">Watch</option>
+          <option value="other">Other</option>
         </select>
       </div>
-      <div class="form-group"><label class="form-label">Brand / Model</label><input class="form-input" id="f-model" type="text" placeholder="e.g. Apple iPhone 15"></div>
-    </div>
-    <div class="form-group"><label class="form-label">IMEI / Serial number</label><input class="form-input" id="f-imei" type="text" placeholder="e.g. 352999001234567" style="font-family:'DM Mono',monospace"></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Purchase date</label><input class="form-input" id="f-date" type="date"></div>
-      <div class="form-group"><label class="form-label">Warranty expiry</label><input class="form-input" id="f-warranty" type="date"></div>
-    </div>
-    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-input form-textarea" id="f-notes" placeholder="e.g. Work laptop, insured under policy #X"></textarea></div>
-
-    <!-- ✅ NEW: Receipt photo upload -->
-    <div class="form-group">
-      <label class="form-label">Receipt photo (optional)</label>
-      <label class="receipt-upload-label" id="receipt-upload-label">
-        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <span id="receipt-upload-text">Click to upload receipt image or PDF</span>
-        <input type="file" id="f-receipt" accept="image/*,.pdf" style="display:none" onchange="handleReceiptPreview(this)">
-      </label>
-      <div id="receipt-preview" style="display:none;margin-top:8px;position:relative">
-        <img id="receipt-preview-img" style="max-width:100%;max-height:120px;border-radius:var(--radius);border:1px solid var(--border);object-fit:cover" src="" alt="Receipt preview">
-        <div id="receipt-preview-name" style="font-size:11px;color:var(--text-3);margin-top:4px"></div>
-        <button onclick="clearReceiptUpload()" style="position:absolute;top:4px;right:4px;background:var(--red);color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center">×</button>
+      <div class="form-group">
+        <label class="form-label">Brand / Model</label>
+        <input class="form-input" id="f-model" type="text" placeholder="e.g. Apple iPhone 15">
       </div>
     </div>
-
+    <div class="form-group">
+      <label class="form-label">IMEI / Serial number</label>
+      <input class="form-input" id="f-imei" type="text" placeholder="e.g. 352999001234567" style="font-family:'DM Mono',monospace">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Purchase date</label>
+        <input class="form-input" id="f-date" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Warranty expiry</label>
+        <input class="form-input" id="f-warranty" type="date">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-input form-textarea" id="f-notes" placeholder="e.g. Work laptop, insured under policy #X"></textarea>
+    </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal('addDeviceModal')">Cancel</button>
       <button class="btn btn-primary" onclick="addDevice()">Save device</button>
@@ -719,18 +528,32 @@
   </div>
 </div>
 
-<!-- Stolen Report -->
 <div class="modal-overlay" id="stolenModal" onclick="if(event.target===this)closeModal('stolenModal')">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title">Report stolen device</div>
       <div class="modal-close" onclick="closeModal('stolenModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
     </div>
-    <div class="form-group"><label class="form-label">Device *</label><select class="form-input form-select" id="sr-device"></select></div>
-    <div class="form-group"><label class="form-label">Date stolen *</label><input class="form-input" type="date" id="sr-date"></div>
-    <div class="form-group"><label class="form-label">Last known location</label><input class="form-input" type="text" id="sr-location" placeholder="e.g. Polokwane, Limpopo"></div>
-    <div class="form-group"><label class="form-label">Police case number (if available)</label><input class="form-input" type="text" id="sr-police" placeholder="e.g. CAS 204/06/2026"></div>
-    <div class="form-group"><label class="form-label">Description of incident</label><textarea class="form-input form-textarea" id="sr-desc" placeholder="Briefly describe how the device was stolen…"></textarea></div>
+    <div class="form-group">
+      <label class="form-label">Device *</label>
+      <select class="form-input form-select" id="sr-device"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Date stolen *</label>
+      <input class="form-input" type="date" id="sr-date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Last known location</label>
+      <input class="form-input" type="text" id="sr-location" placeholder="e.g. Polokwane, Limpopo">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Police case number (if available)</label>
+      <input class="form-input" type="text" id="sr-police" placeholder="e.g. CAS 204/06/2026">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description of incident</label>
+      <textarea class="form-input form-textarea" id="sr-desc" placeholder="Briefly describe how the device was stolen…"></textarea>
+    </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal('stolenModal')">Cancel</button>
       <button class="btn btn-danger" onclick="fileReport()">File report</button>
@@ -738,131 +561,34 @@
   </div>
 </div>
 
-<!-- Device Detail + OmniBot -->
-<div class="modal-overlay" id="deviceDetailModal" onclick="if(event.target===this)closeModal('deviceDetailModal')">
-  <div class="modal modal-wide">
-    <div class="modal-header">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div id="detail-thumb"></div>
-        <div>
-          <div class="modal-title" id="detail-name">Device</div>
-          <div style="font-size:12px;color:var(--text-3)" id="detail-model"></div>
-        </div>
-      </div>
-      <div class="modal-close" onclick="closeModal('deviceDetailModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
-    </div>
-    <div class="detail-info-strip" id="detail-info-strip"></div>
-
-    <!-- ✅ NEW: Receipt image shown inside device detail -->
-    <div id="detail-receipt-wrap" style="display:none;margin-bottom:14px">
-      <div style="font-size:11px;font-weight:500;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Receipt</div>
-      <a id="detail-receipt-link" href="#" target="_blank">
-        <img id="detail-receipt-img" src="" alt="Receipt" style="max-height:80px;border-radius:var(--radius);border:1px solid var(--border);cursor:pointer">
-      </a>
-    </div>
-
-    <div id="omnibot-locked" style="display:none">
-      <div class="premium-gate" style="margin:0;border-radius:var(--radius-lg);border:1px solid var(--border)">
-        <div class="pg-icon">🤖</div>
-        <div class="pg-title">OmniBot is a Pro feature</div>
-        <div class="pg-desc">Get step-by-step AI repair guidance for this device.</div>
-        <button class="btn btn-primary" onclick="closeModal('deviceDetailModal');showUpgradeModal()">Upgrade to Pro</button>
-      </div>
-    </div>
-    <div id="omnibot-section" style="display:none">
-      <div class="ai-section">
-        <div class="ai-section-header">
-          <div class="ai-badge">
-            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 010 2h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 010-2h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2z"/></svg>
-            OmniBot
-          </div>
-          <span style="font-size:11px;color:var(--text-3)">Powered by Claude</span>
-        </div>
-        <div class="ai-chat-box" id="ai-chat-box"></div>
-        <div class="ai-input-row">
-          <input class="ai-input" id="ai-input" type="text" placeholder="Describe the problem with your device…" onkeydown="if(event.key==='Enter')sendAIMessage()">
-          <button class="ai-send-btn" onclick="sendAIMessage()">
-            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Upgrade Modal -->
-<div class="modal-overlay" id="upgradeModal" onclick="if(event.target===this)closeModal('upgradeModal')">
+<div class="modal-overlay" id="uploadDocModal" onclick="if(event.target===this)closeModal('uploadDocModal')">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">Upgrade to OmniBackup Pro</div>
-      <div class="modal-close" onclick="closeModal('upgradeModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
-    </div>
-    <div class="upgrade-card" style="margin-bottom:0;border:none;padding:0;box-shadow:none">
-      <div class="upgrade-card-header">
-        <div>
-          <div style="font-size:18px;font-weight:500;color:var(--text)">Go Pro</div>
-          <div style="font-size:13px;color:var(--text-3);margin-top:2px">Unlock everything in OmniBackup</div>
-        </div>
-        <div class="price-tag">TBD<span>/mo</span></div>
-      </div>
-      <ul class="upgrade-features">
-        <li>✓ Unlimited devices</li>
-        <li>✓ OmniBot AI Repair Assistant</li>
-        <li>✓ File Vault (cloud storage)</li>
-        <li>✓ Smart Reminders &amp; push notifications</li>
-        <li>✓ Lost device recovery guide</li>
-        <li>✓ Priority support</li>
-      </ul>
-      <!-- ✅ NEW: Code activation inside upgrade modal too -->
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px">
-        <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:8px">🔑 Have a Pro code?</div>
-        <div style="display:flex;gap:8px">
-          <input class="form-input" id="promo-code-input-modal" type="text" placeholder="Enter access code" style="margin:0">
-          <button class="btn btn-primary" onclick="activateProCodeModal()" style="white-space:nowrap">Activate</button>
-        </div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <a class="btn btn-primary" style="flex:1;justify-content:center" href="https://wa.me/27780264271?text=Hi%2C%20I%20want%20to%20upgrade%20to%20OmniBackup%20Pro" target="_blank">
-          <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.136.564 4.14 1.534 5.876L0 24l6.29-1.508A11.955 11.955 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.002-1.368l-.36-.214-3.733.895.929-3.624-.235-.373A9.818 9.818 0 1112 21.818z"/></svg>
-          WhatsApp us
-        </a>
-        <a class="btn btn-ghost" style="flex:1;justify-content:center" href="mailto:tebogoletsoalo498@gmail.com?subject=OmniBackup%20Pro%20Upgrade" target="_blank">
-          <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          Email us
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ✅ NEW: Feedback Modal -->
-<div class="modal-overlay" id="feedbackModal" onclick="if(event.target===this)closeModal('feedbackModal')">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Send Feedback</div>
-      <div class="modal-close" onclick="closeModal('feedbackModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+      <div class="modal-title">Upload document</div>
+      <div class="modal-close" onclick="closeModal('uploadDocModal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
     </div>
     <div class="form-group">
-      <label class="form-label">How is OmniBackup working for you?</label>
-      <div style="display:flex;gap:10px;margin-bottom:4px">
-        <button class="feedback-emoji-btn" onclick="selectFeedbackRating(this)" data-val="Love it">😍</button>
-        <button class="feedback-emoji-btn" onclick="selectFeedbackRating(this)" data-val="Good">😊</button>
-        <button class="feedback-emoji-btn" onclick="selectFeedbackRating(this)" data-val="Okay">😐</button>
-        <button class="feedback-emoji-btn" onclick="selectFeedbackRating(this)" data-val="Needs work">😞</button>
-      </div>
+      <label class="form-label">Device *</label>
+      <select class="form-input form-select" id="ud-device"></select>
     </div>
     <div class="form-group">
-      <label class="form-label">Tell us more</label>
-      <textarea class="form-input form-textarea" id="feedback-text" placeholder="What's working well? What could be better? Any bugs?" style="min-height:100px"></textarea>
+      <label class="form-label">Label</label>
+      <input class="form-input" id="ud-label" type="text" placeholder="e.g. Purchase receipt">
+    </div>
+    <div class="form-group">
+      <label class="form-label">File *</label>
+      <input class="form-input" id="ud-file" type="file" accept="image/*,.pdf">
+      <div style="font-size:11px;color:var(--text-3);margin-top:6px">Stored locally in this browser only (max 5MB). Images and PDFs supported.</div>
     </div>
     <div class="form-actions">
-      <button class="btn btn-ghost" onclick="closeModal('feedbackModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="submitFeedback()">Send feedback</button>
+      <button class="btn btn-ghost" onclick="closeModal('uploadDocModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="uploadDocument()">Upload</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
+
 <script type="module" src="app.js"></script>
 </body>
 </html>
