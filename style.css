@@ -115,6 +115,19 @@ body {
   align-items: center;
   gap: 10px;
 }
+.sidebar-close-btn {
+  display: none; margin-left: auto;
+  width: 28px; height: 28px; border-radius: 7px;
+  align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text-2); flex-shrink: 0;
+}
+.sidebar-close-btn:hover { background: var(--bg); }
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.4);
+  z-index: 99;
+}
 .logo-icon {
   width: 34px; height: 34px;
   background: var(--green);
@@ -645,9 +658,22 @@ body {
 @media (max-width: 600px) {
   .sidebar { width: 0; overflow: hidden; }
   .sidebar.mobile-open { width: 250px; overflow: visible; box-shadow: 4px 0 24px rgba(0,0,0,.2); }
+  .sidebar.mobile-open + .sidebar-overlay { display: block; }
+  .sidebar-close-btn { display: flex; }
   .main { margin-left: 0; }
   .metrics-grid { grid-template-columns: 1fr 1fr; }
   .omnibot-panel { width: calc(100vw - 32px); right: 16px; left: 16px; bottom: 84px; }
   .omnibot-btn { right: 16px; bottom: 16px; }
   .emergency-grid { grid-template-columns: 1fr; }
+
+  /* Compact topbar */
+  .topbar { padding: 0 10px; height: 50px; }
+  .content { padding: 16px; }
+  .page-title { font-size: 14px; }
+  .topbar-left { gap: 2px; }
+  .topbar-right { gap: 6px; }
+  .icon-btn { width: 30px; height: 30px; }
+  .topbar-right .btn { padding: 7px 10px; }
+  .topbar-right .btn .btn-label { display: none; }
+  .topbar-right .btn svg { width: 16px; height: 16px; }
 }
