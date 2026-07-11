@@ -583,13 +583,30 @@ function updateBackBtn() {
 
 window.toggleMobileSidebar = () => {
   const sb = document.querySelector('.sidebar');
-  if (sb) sb.classList.toggle('mobile-open');
+  if (!sb) return;
+  if (sb.classList.contains('mobile-open')) closeMobileSidebar();
+  else openMobileSidebar();
 };
+
+function openMobileSidebar() {
+  const sb = document.querySelector('.sidebar');
+  if (!sb || sb.classList.contains('mobile-open')) return;
+  sb.classList.add('mobile-open');
+  // Push a history entry so the phone's back button closes the menu instead of leaving the app.
+  history.pushState({ omniSidebarOpen: true }, '');
+}
 
 function closeMobileSidebar() {
   const sb = document.querySelector('.sidebar');
   if (sb) sb.classList.remove('mobile-open');
+  if (history.state && history.state.omniSidebarOpen) history.back();
 }
+window.closeMobileSidebar = closeMobileSidebar;
+
+window.addEventListener('popstate', () => {
+  const sb = document.querySelector('.sidebar');
+  if (sb) sb.classList.remove('mobile-open');
+});
 
 /* =========================================
    DEVICE ACTIONS
