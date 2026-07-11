@@ -144,6 +144,9 @@
       <div>
         <div class="logo-name">Omni<span>Backup</span><span class="logo-badge">Beta</span></div>
       </div>
+      <div class="sidebar-close-btn" onclick="closeMobileSidebar()" title="Close menu">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section">Overview</div>
@@ -196,6 +199,7 @@
     </div>
     <div class="sidebar-credit">Built by <strong>Letsoalo Tebogo</strong> · © 2026 All rights reserved</div>
   </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
 
   <!-- MAIN -->
   <div class="main">
@@ -215,11 +219,11 @@
         </button>
         <button class="btn btn-ghost" onclick="logoutUser()">
           <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Sign out
+          <span class="btn-label">Sign out</span>
         </button>
         <button class="btn btn-primary" onclick="openModal('addDeviceModal')">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add device
+          <span class="btn-label">Add device</span>
         </button>
       </div>
     </header>
